@@ -12,6 +12,7 @@ public class addBook extends JFrame {
     private JTextField bookNameText, authorText, isbnText, descriptionText, GenreText;
     private JDateChooser datePublishedText;
     private JButton addBookButton, backButton;
+    
 
     public addBook() {
         
