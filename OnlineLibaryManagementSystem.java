@@ -1,4 +1,4 @@
-import java.awt.*;
+ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.sql.*;
@@ -106,12 +106,21 @@ public class OnlineLibaryManagementSystem extends JFrame {
             
             String uName = userNameTextField.getText();
             String password = new String(passwordTextField.getPassword());
-            if(authenticate(uName ,password ))
-                 JOptionPane.showMessageDialog(null , "Login successful ! ","Successful",JOptionPane.INFORMATION_MESSAGE);
-            else
-                throw new ErrorLogin("Login unsuccessful , Check your information");
-             new DashboardAdmin();
-             dispose();
+            String role = authenticate(uName ,password );
+            if(role == null)
+                   throw new ErrorLogin("Login unsuccessful , Check your information");
+            else if(role.equals("Admin")){
+                 JOptionPane.showMessageDialog(null , "Welcome Admin ! ","Login successful",JOptionPane.INFORMATION_MESSAGE);
+                    new DashboardAdmin();
+
+            }
+            else if(role.equals("Member")){
+                 JOptionPane.showMessageDialog(null , "Welcome Member ! ","Login successful",JOptionPane.INFORMATION_MESSAGE);
+                new MainDashboard();
+
+            }
+               dispose();
+
             }catch(EmptyException e2){
                JOptionPane.showMessageDialog(null , e2.getMessage(),"Empty text",JOptionPane.WARNING_MESSAGE);
             }catch(ErrorLogin e2){
@@ -135,12 +144,15 @@ public class OnlineLibaryManagementSystem extends JFrame {
     }
     public class ExitButtonAction implements ActionListener{
         public void actionPerformed(ActionEvent e){
+            int n = JOptionPane.showConfirmDialog(null , "Do you Want Exit ?","Exit",JOptionPane.YES_NO_OPTION);
+            if(n==0)
             System.exit(0);
         }
     }
     
-    public boolean authenticate(String Uname , String password){
-        String query = "SELECT * FROM Users WHERE UserName = ? AND Password = ? ";
+    public String authenticate(String Uname , String password){
+        String role = null ;
+        String query = "SELECT Role FROM Users WHERE UserName = ? AND Password = ? ";
         try{
             // هنا يتغير المسار حسب وين مكان حفظك لقاعدة البيانات
           Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/LibraryDB.accdb");
@@ -148,14 +160,16 @@ public class OnlineLibaryManagementSystem extends JFrame {
           stmt.setString(1, Uname);
           stmt.setString(2,password);
           ResultSet rs = stmt.executeQuery();
-          return rs.next();
+          if( rs.next())
+              role = rs.getString("Role");
         }catch(SQLException e){
             e.printStackTrace();
         }
-        return false ;
+        return role ;
     }
     public static void main(String[] args) {
        OnlineLibaryManagementSystem L1 = new OnlineLibaryManagementSystem();
 
     }
 }
+
