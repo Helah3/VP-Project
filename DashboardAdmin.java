@@ -106,12 +106,18 @@ public class DashboardAdmin extends JFrame {
         
     public class addMember implements ActionListener{
     public void actionPerformed(ActionEvent e){
-    
+            new NewMember();
+            dispose();
+
+
     }}
             
     public class updateMember implements ActionListener{
     public void actionPerformed(ActionEvent e){
-    
+                new UpdateMember();
+                 dispose();
+
+
     }}
     
     public class statisticReport implements ActionListener{
