@@ -74,8 +74,9 @@ public class ReportModule extends JFrame {
         
         tableModel.setColumnIdentifiers(new String[]{"User ID", "Book ID", "Borrow Date", "Return Date"});
         tableModel.setRowCount(0);
-        String query = "SELECT UserID, BookID, BorrowDate, ReturnDate FROM Borrowings";
-
+String query = "SELECT u.UserName, b.BookID, b.BorrowDate, b.ReturnDate " +
+               "FROM Borrowings b " +
+               "JOIN Users u ON b.UserID = u.UserID";
         try { 
           Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/LibraryDB.accdb");
              PreparedStatement stmt = c.prepareStatement(query);
@@ -83,7 +84,7 @@ public class ReportModule extends JFrame {
 
             while (rs.next()) {
                 tableModel.addRow(new Object[]{
-                        rs.getInt("UserID"),
+                        rs.getString("UserName"),
                         rs.getInt("BookID"),
                         rs.getDate("BorrowDate"),
                         rs.getDate("ReturnDate")
@@ -154,3 +155,4 @@ public class ReportModule extends JFrame {
     }
 
 }
+
