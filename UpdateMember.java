@@ -1,3 +1,4 @@
+package com.mycompany.newmemberdetailss;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -9,13 +10,13 @@ import java.util.Date;
 
 public class UpdateMember extends JFrame {
 
-    private JLabel labelUserName, labelPassword, labelDOB, labelGender, labelEmail;
+    private JLabel labelUserName, labelPassword, labelDOB, labelGender, labelEmail,labelRole;
     private JTextField textUserName, textEmail;
     private JPasswordField passwordTextField;
     private JDateChooser datePublishedText;
-    private JRadioButton radioMale, radioFemale;
+    private JRadioButton radioMale, radioFemale, radioAdmin, radioMember;
     private JButton buttonUpd, buttonBack;
-    private ButtonGroup genderGroup;
+    private ButtonGroup genderGroup, roleGroup;
 
     public UpdateMember() {
         this.setTitle("Update Member");
@@ -70,6 +71,19 @@ public class UpdateMember extends JFrame {
         panelGender.add(labelGender);
         panelGender.add(radioMale);
         panelGender.add(radioFemale);
+         // Role
+        labelRole = new JLabel("Role:");
+        labelRole.setFont(fontText);
+        labelRole.setBorder(new EmptyBorder(0, 20, 0, 50));
+        radioAdmin = new JRadioButton("Admin");
+        radioMember = new JRadioButton("Member");
+        roleGroup = new ButtonGroup();
+        roleGroup.add(radioAdmin);
+        roleGroup.add(radioMember);
+        JPanel panelRole = new JPanel(new FlowLayout());
+        panelRole.add(labelRole);
+        panelRole.add(radioAdmin);
+        panelRole.add(radioMember);
 
         // Email
         labelEmail = new JLabel("Email:");
@@ -90,10 +104,12 @@ public class UpdateMember extends JFrame {
         buttonPanel.add(buttonBack);
 
         // Adding panels to the form panel
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.add(panelUserName);
         mainPanel.add(panelPassword);
         mainPanel.add(panelDOB);
         mainPanel.add(panelGender);
+        mainPanel.add(panelRole);
         mainPanel.add(panelEmail);
 
         JPanel mainContainer = (JPanel) this.getContentPane();
@@ -116,23 +132,25 @@ public class UpdateMember extends JFrame {
         public void actionPerformed(ActionEvent e) {
             try {
                 // Input validation
-                if (textUserName.getText().isEmpty() || passwordTextField.getPassword().length == 0 ||
-                        datePublishedText.getDate() == null || textEmail.getText().isEmpty() ||
-                        (!radioMale.isSelected() && !radioFemale.isSelected())) {
+                if (textUserName.getText().equals("") || passwordTextField.getPassword().length == 0 ||
+                        datePublishedText.getDate() == null || textEmail.getText().equals("") ||
+                        (!radioMale.isSelected() && !radioFemale.isSelected()) ||
+                        (!radioAdmin.isSelected() && !radioMember.isSelected())) {
                     throw new EmptyFieldsException("All fields are required!");
                 }
 
                 // Get input values
-                String username = textUserName.getText();
-                String password = new String(passwordTextField.getPassword());
-                String email = textEmail.getText();
-                String gender = radioMale.isSelected() ? "Male" : "Female";
+                 String UserName= textUserName.getText();
+                String Password = new String(passwordTextField.getPassword());
+                String Email = textEmail.getText();
+                String Gender = radioMale.isSelected() ? "Male" : "Female";
+                String Role = radioAdmin.isSelected() ? "Admin" : "Member";
 
-                Date utilDate = datePublishedText.getDate();
-                java.sql.Date dob = new java.sql.Date(utilDate.getTime());
+                java.util.Date utilDate = datePublishedText.getDate();
+                java.sql.Date  DateOfBitrthd = new java.sql.Date(utilDate.getTime());
 
                 // Update database
-                if (updateMemberDetails(username, password, dob, gender, email)) {
+                if (addNewMember(UserName,Email,Password , Role ,  Gender, DateOfBitrthd)) {
                     JOptionPane.showMessageDialog(null, "Member updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 } else {
                     throw new DatabaseException("Failed to update member. Please try again.");
@@ -155,17 +173,18 @@ public class UpdateMember extends JFrame {
     }
 
     // Method to update member details in the database
-    public boolean updateMemberDetails(String username, String password, java.sql.Date dob, String gender, String email) {
-        String query = "UPDATE Members SET Password = ?, DOB = ?, Gender = ?, Email = ? WHERE UserName = ?";
-        try (Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C://Users//baato//OneDrive//المستندات//NetBeansProjects"); // Update the path to your database
-             PreparedStatement stmt = connection.prepareStatement(query)) {
+   public boolean addNewMember(String UserName, String Email, String Password , String Role , String Gender ,java.sql.Date DateOfBitrthd  ) {
+        String query = "INSERT INTO Members (UserName, Password, DOB, Gender, Role, Email) VALUES (?, ?, ?, ?, ?, ?)";
+        try {
+            Connection connection = DriverManager.getConnection("jdbc:ucanaccess:C://Users//baato//OneDrive//سطح المكتب/LibraryDB.accdb"); // Update with your database path
+            PreparedStatement stmt = connection.prepareStatement(query);
 
-            stmt.setString(1, password);
-            stmt.setDate(2, dob);
-            stmt.setString(3, gender);
-            stmt.setString(4, email);
-            stmt.setString(5, username);
-
+            stmt.setString(1, UserName);
+            stmt.setString(2, Email );
+            stmt.setString(3,Password );
+            stmt.setString(4, Role );
+            stmt.setString(5, Gender);
+            stmt.setDate(6,DateOfBitrthd);
             int rowsUpdated = stmt.executeUpdate();
             return rowsUpdated > 0;
 
@@ -194,3 +213,5 @@ public class UpdateMember extends JFrame {
         new UpdateMember();
     }
 }
+
+      
