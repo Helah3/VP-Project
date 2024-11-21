@@ -147,7 +147,7 @@ public class addBook extends JFrame {
     public boolean addBookQuery(String Title, String Author, String Genre, String isbn, java.sql.Date PublicationDate, String description) {
         String query = "INSERT INTO Books (Title, Author, Genre, PublicationDate, ISBN, Descripation, Avaliable) VALUES (?,?,?,?,?,?,?)";
         try {
-          Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/LibraryDB.accdb");
+          Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
             PreparedStatement stmt = c.prepareStatement(query);
 
             stmt.setString(1, Title);
@@ -181,3 +181,4 @@ public class addBook extends JFrame {
     
    
 }
+
