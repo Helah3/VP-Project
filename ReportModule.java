@@ -78,7 +78,7 @@ String query = "SELECT u.UserName, b.BookID, b.BorrowDate, b.ReturnDate " +
                "FROM Borrowings b " +
                "JOIN Users u ON b.UserID = u.UserID";
         try { 
-          Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/LibraryDB.accdb");
+          Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
              PreparedStatement stmt = c.prepareStatement(query);
              ResultSet rs = stmt.executeQuery();
 
@@ -106,7 +106,7 @@ String query = "SELECT u.UserName, b.BookID, b.BorrowDate, b.ReturnDate " +
                        "ORDER BY BorrowCount DESC";
 
         try {
-          Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/LibraryDB.accdb");
+          Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
              PreparedStatement stmt = c.prepareStatement(query);
              ResultSet rs = stmt.executeQuery();
 
@@ -132,7 +132,7 @@ String query = "SELECT u.UserName, b.BookID, b.BorrowDate, b.ReturnDate " +
                        "ORDER BY BorrowCount DESC";
 
         try {
-          Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/LibraryDB.accdb");
+          Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
              PreparedStatement stmt = c.prepareStatement(query);
              ResultSet rs = stmt.executeQuery();
 
@@ -155,4 +155,5 @@ String query = "SELECT u.UserName, b.BookID, b.BorrowDate, b.ReturnDate " +
     }
 
 }
+
 
