@@ -1,9 +1,7 @@
-package com.mycompany.newmemberdetailss;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
+import javax.swing.border.*;
 import com.toedter.calendar.JDateChooser;
 import java.sql.*;
 import java.text.SimpleDateFormat;
@@ -20,7 +18,7 @@ public class NewMember extends JFrame {
 
     public NewMember() {
 
-        this.setTitle("New Member");
+        this.setTitle("");
         this.setSize(1024, 576);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocation(0, 0);
@@ -31,33 +29,33 @@ public class NewMember extends JFrame {
 
         JPanel mainPanel = new JPanel(new GridLayout(6, 1));
 
-        // User Name
-        labelUserName = new JLabel("User Name:");
+        labelUserName = new JLabel("User Name");
+        labelUserName.setBorder(new EmptyBorder(0, 20, 0, 20));
         textUserName = new JTextField(15);
         labelUserName.setFont(fontText);
         JPanel panelUserName = new JPanel(new FlowLayout());
         panelUserName.add(labelUserName);
         panelUserName.add(textUserName);
 
-        // Password
-        labelPassword = new JLabel("Password:");
+        labelPassword = new JLabel("Password");
+        labelPassword.setBorder(new EmptyBorder(0, 20, 0, 20));
         passwordTextField = new JPasswordField(15);
         labelPassword.setFont(fontText);
         JPanel panelPassword = new JPanel(new FlowLayout());
         panelPassword.add(labelPassword);
         panelPassword.add(passwordTextField);
 
-        // Date of Birth
-        labelDOB = new JLabel("Date of Birth:");
+        labelDOB = new JLabel("Date of Birth");
+        labelDOB.setBorder(new EmptyBorder(0, 20, 0, 20));
         labelDOB.setFont(fontText);
         datePublishedText = new JDateChooser();
-        datePublishedText.setPreferredSize(new Dimension(150, 25));
+        datePublishedText.setPreferredSize(new Dimension(150, 18));
         JPanel panelDOB = new JPanel(new FlowLayout());
         panelDOB.add(labelDOB);
         panelDOB.add(datePublishedText);
 
-        // Gender
-        labelGender = new JLabel("Gender:");
+        labelGender = new JLabel("Gender");
+        labelGender.setBorder(new EmptyBorder(0, 20, 0, 20));
         labelGender.setFont(fontText);
         radioMale = new JRadioButton("Male");
         radioFemale = new JRadioButton("Female");
@@ -69,8 +67,8 @@ public class NewMember extends JFrame {
         panelGender.add(radioMale);
         panelGender.add(radioFemale);
 
-        // Role
-        labelRole = new JLabel("Role:");
+        labelRole = new JLabel("Role");
+        labelRole.setBorder(new EmptyBorder(0, 40, 0, 20));
         labelRole.setFont(fontText);
         radioAdmin = new JRadioButton("Admin");
         radioMember = new JRadioButton("Member");
@@ -82,15 +80,15 @@ public class NewMember extends JFrame {
         panelRole.add(radioAdmin);
         panelRole.add(radioMember);
 
-        // Email
-        labelEmail = new JLabel("Email:");
+        labelEmail = new JLabel("Email");
+        labelEmail.setBorder(new EmptyBorder(0, 20, 0, 20));
         textEmail = new JTextField(15);
         labelEmail.setFont(fontText);
         JPanel panelEmail = new JPanel(new FlowLayout());
         panelEmail.add(labelEmail);
         panelEmail.add(textEmail);
 
-        // Buttons
+
         buttonAdd = new JButton("Add");
         buttonAdd.setFont(fontButton);
         buttonBack = new JButton("Back");
@@ -99,7 +97,6 @@ public class NewMember extends JFrame {
         buttonPanel.add(buttonAdd);
         buttonPanel.add(buttonBack);
 
-        // Add panels to the main panel
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.add(panelUserName);
         mainPanel.add(panelPassword);
@@ -116,26 +113,22 @@ public class NewMember extends JFrame {
         mainContainer.add(mainPanel, BorderLayout.CENTER);
         mainContainer.add(buttonPanel, BorderLayout.SOUTH);
 
-        // Add action listeners to buttons
         buttonAdd.addActionListener(new AddButton());
         buttonBack.addActionListener(new BackToDashboard());
 
         this.setVisible(true);
     }
 
-    // ** Event Handling for Add Button **
     public class AddButton implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             try {
-                // Validate input
-                if (textUserName.getText().equals("") || passwordTextField.getPassword().length == 0 ||
+                if (textUserName.getText().equals("") || passwordTextField.getText().equals("")||
                         datePublishedText.getDate() == null || textEmail.getText().equals("") ||
                         (!radioMale.isSelected() && !radioFemale.isSelected()) ||
                         (!radioAdmin.isSelected() && !radioMember.isSelected())) {
-                    throw new EmptyFieldsException("All fields are required!");
+                    throw new EmptyFieldsException("All fields are required !");
                 }
 
-                // Get input values
                 String UserName= textUserName.getText();
                 String Password = new String(passwordTextField.getPassword());
                 String Email = textEmail.getText();
@@ -145,35 +138,31 @@ public class NewMember extends JFrame {
                 java.util.Date utilDate = datePublishedText.getDate();
                 java.sql.Date  DateOfBitrthd = new java.sql.Date(utilDate.getTime());
 
-                // Insert data into database
                 if (addNewMember(UserName,Email,Password , Role ,  Gender, DateOfBitrthd)) {
                     JOptionPane.showMessageDialog(null, "Member added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 } else {
                     throw new DatabaseException("Failed to add member. Try again.");
                 }
             } catch (EmptyFieldsException ex) {
-                JOptionPane.showMessageDialog(null, ex.getMessage(), "Input Error", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(null, ex.getMessage(), "Empty text", JOptionPane.WARNING_MESSAGE);
             } catch (DatabaseException ex) {
                 JOptionPane.showMessageDialog(null, ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
-    // ** Event Handling for Back Button **
     public class BackToDashboard implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            // Navigate back to the dashboard
-            new DashboardUser(); // Assuming a DashboardAdmin class exists
-            dispose(); // Close the current window
+            new DashboardAdmin(); 
+            dispose(); 
         }
     }
 
-    // ** Database Method for Adding Member **
     public boolean addNewMember(String UserName, String Email, String Password , String Role , String Gender ,java.sql.Date DateOfBitrthd  ) {
-        String query = "INSERT INTO Members (UserName, Password, DOB, Gender, Role, Email) VALUES (?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO Users (UserName, Email, Password, Role, Gender, DateOfBitrthd) VALUES (?, ?, ?, ?, ?, ?)";
         try {
-            Connection connection = DriverManager.getConnection("jdbc:ucanaccess:C://Users//baato//OneDrive//سطح المكتب/LibraryDB.accdb"); // Update with your database path
-            PreparedStatement stmt = connection.prepareStatement(query);
+          Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+            PreparedStatement stmt = c.prepareStatement(query);
 
             stmt.setString(1, UserName);
             stmt.setString(2, Email );
@@ -191,7 +180,6 @@ public class NewMember extends JFrame {
         return false;
     }
 
-    // ** Custom Exception for Empty Fields **
     public class EmptyFieldsException extends Exception {
         public EmptyFieldsException(String message) {
             super(message);
@@ -204,9 +192,5 @@ public class NewMember extends JFrame {
             super(message);
         }
     }
-
-    // ** Main Method **
-    public static void main(String[] args) {
-        NewMember x=new NewMember();
-    }
+   
 }
