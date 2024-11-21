@@ -1,3 +1,4 @@
+package com.mycompany.newmemberdetailss;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -135,17 +136,17 @@ public class NewMember extends JFrame {
                 }
 
                 // Get input values
-                String username = textUserName.getText();
-                String password = new String(passwordTextField.getPassword());
-                String email = textEmail.getText();
-                String gender = radioMale.isSelected() ? "Male" : "Female";
-                String role = radioAdmin.isSelected() ? "Admin" : "Member";
+                String UserName= textUserName.getText();
+                String Password = new String(passwordTextField.getPassword());
+                String Email = textEmail.getText();
+                String Gender = radioMale.isSelected() ? "Male" : "Female";
+                String Role = radioAdmin.isSelected() ? "Admin" : "Member";
 
                 java.util.Date utilDate = datePublishedText.getDate();
-                java.sql.Date dob = new java.sql.Date(utilDate.getTime());
+                java.sql.Date  DateOfBitrthd = new java.sql.Date(utilDate.getTime());
 
                 // Insert data into database
-                if (addNewMember(username, password, dob, gender, role, email)) {
+                if (addNewMember(UserName,Email,Password , Role ,  Gender, DateOfBitrthd)) {
                     JOptionPane.showMessageDialog(null, "Member added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 } else {
                     throw new DatabaseException("Failed to add member. Try again.");
@@ -168,18 +169,18 @@ public class NewMember extends JFrame {
     }
 
     // ** Database Method for Adding Member **
-    public boolean addNewMember(String username, String password, java.sql.Date dob, String gender, String role, String email) {
+    public boolean addNewMember(String UserName, String Email, String Password , String Role , String Gender ,java.sql.Date DateOfBitrthd  ) {
         String query = "INSERT INTO Members (UserName, Password, DOB, Gender, Role, Email) VALUES (?, ?, ?, ?, ?, ?)";
         try {
-            Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C://Users//baato//OneDrive//المستندات//NetBeansProjects"); // Update with your database path
+            Connection connection = DriverManager.getConnection("jdbc:ucanaccess:C://Users//baato//OneDrive//سطح المكتب/LibraryDB.accdb"); // Update with your database path
             PreparedStatement stmt = connection.prepareStatement(query);
 
-            stmt.setString(1, username);
-            stmt.setString(2, password);
-            stmt.setDate(3, dob);
-            stmt.setString(4, gender);
-            stmt.setString(5, role);
-            stmt.setString(6, email);
+            stmt.setString(1, UserName);
+            stmt.setString(2, Email );
+            stmt.setString(3,Password );
+            stmt.setString(4, Role );
+            stmt.setString(5, Gender);
+            stmt.setDate(6,DateOfBitrthd);
 
             int rowsInserted = stmt.executeUpdate();
             return rowsInserted > 0;
@@ -206,6 +207,6 @@ public class NewMember extends JFrame {
 
     // ** Main Method **
     public static void main(String[] args) {
-        new NewMember();
+        NewMember x=new NewMember();
     }
 }
