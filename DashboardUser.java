@@ -1,3 +1,4 @@
+package com.mycompany.newmemberdetailss;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -72,7 +73,7 @@ public class DashboardUser extends JFrame {
 
         private void searchBookInDatabase(String searchTerm) {
             String query = "SELECT * FROM Books WHERE Title LIKE ? OR Author LIKE ?";
-            try (Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/LibraryDB.accdb"); // Update database path
+            try (Connection connection = DriverManager.getConnection("jdbc:ucanaccess:C://Users//baato//OneDrive//سطح المكتب/LibraryDB.accdb"); // Update database path
                  PreparedStatement stmt = connection.prepareStatement(query)) {
 
                 stmt.setString(1, "%" + searchTerm + "%");
@@ -154,7 +155,7 @@ public class DashboardUser extends JFrame {
 
         private void returnBook(int bookID) throws DatabaseException {
             String query = "DELETE FROM BorrowedBooks WHERE BookID = ?";
-            try (Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/LibraryDB.accdb"); // Update database path
+            try (Connection connection = DriverManager.getConnection("jdbc:ucanaccess:C://Users//baato//OneDrive//سطح المكتب"); // Update database path
                  PreparedStatement stmt = connection.prepareStatement(query)) {
 
                 stmt.setInt(1, bookID);
@@ -188,6 +189,6 @@ public class DashboardUser extends JFrame {
 
     // Main method
     public static void main(String[] args) {
-        new DashboardUser();
+          DashboardUser c =new DashboardUser();
     }
 }
