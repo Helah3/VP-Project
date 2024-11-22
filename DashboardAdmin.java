@@ -5,7 +5,7 @@ import javax.swing.border.TitledBorder;
 
 public class DashboardAdmin extends JFrame {
     
-    private   JButton AddButton , BorrowedButton , SearchButton,UpdateButton , AddMemberButton , UpdateMemberButton , StatisticsButton;
+    private  JButton AddButton , BorrowedButton , SearchButton,UpdateButton , AddMemberButton , UpdateMemberButton , StatisticsButton , LogoutB;
 
     
     public DashboardAdmin(){
@@ -17,7 +17,7 @@ public class DashboardAdmin extends JFrame {
         Font fontButton = new Font("Arial", Font.PLAIN, 16); 
         Font fonttitle = new Font("Segoe UI Variable Display Semib", Font.BOLD, 16); 
 
-        JPanel mainP = new JPanel(new GridLayout(7,1));
+        JPanel mainP = new JPanel(new GridLayout(8,1));
         
         AddButton = new JButton("     Add Book     ");
         AddButton.setFont(fontButton);
@@ -54,6 +54,11 @@ public class DashboardAdmin extends JFrame {
         JPanel m7 = new JPanel(new FlowLayout());
         m7.add(StatisticsButton);
         
+        LogoutB = new JButton("      Log Out      ");
+        LogoutB.setFont(fontButton);
+        JPanel m8 = new JPanel(new FlowLayout());
+        m8.add(LogoutB);
+        
         mainP.add(m1);
         mainP.add(m2);
         mainP.add(m3);
@@ -61,7 +66,8 @@ public class DashboardAdmin extends JFrame {
         mainP.add(m5);
         mainP.add(m6);
         mainP.add(m7);
- 
+        mainP.add(m8);
+
          JPanel mainpanel = (JPanel) this.getContentPane();
          TitledBorder title;
          title = BorderFactory.createTitledBorder("Dashboard Admin");
@@ -77,6 +83,8 @@ public class DashboardAdmin extends JFrame {
         AddMemberButton.addActionListener(new addMember());
         UpdateMemberButton.addActionListener(new updateMember());
         StatisticsButton.addActionListener(new statisticReport());
+        LogoutB.addActionListener(new Logout());
+
     }
     
     public class addBookButton implements ActionListener{
@@ -94,7 +102,7 @@ public class DashboardAdmin extends JFrame {
     
       public class searchBook implements ActionListener{
     public void actionPerformed(ActionEvent e){
-    new BookSearch();
+    new BookSearch("Admin");
             dispose();
     }}
       
@@ -126,6 +134,14 @@ public class DashboardAdmin extends JFrame {
             dispose();
 
     }}
-   
+    public class Logout implements ActionListener{
+    public void actionPerformed(ActionEvent e){
+         int n = JOptionPane.showConfirmDialog(null , "Do you Want Log out ?","Log Out",JOptionPane.YES_NO_OPTION);
+            if(n==0)
+            System.exit(0);
+    
+    }}
+    
 }
+
 
