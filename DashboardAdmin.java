@@ -1,147 +1,95 @@
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import java.sql.*;
 
-public class DashboardAdmin extends JFrame {
-    
-    private  JButton AddButton , BorrowedButton , SearchButton,UpdateButton , AddMemberButton , UpdateMemberButton , StatisticsButton , LogoutB;
+public class DashboardUser extends JFrame {
 
-    
-    public DashboardAdmin(){
+    private JButton buttonSearch, buttonBorrowed, buttonReturn , LogoutB;
 
-        this.setTitle("");
+    public DashboardUser() {
+        this.setTitle("User Dashboard");
         this.setSize(1024, 576);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setLocation(0,0);
-        Font fontButton = new Font("Arial", Font.PLAIN, 16); 
-        Font fonttitle = new Font("Segoe UI Variable Display Semib", Font.BOLD, 16); 
+        this.setLocation(0, 0);
 
-        JPanel mainP = new JPanel(new GridLayout(8,1));
-        
-        AddButton = new JButton("     Add Book     ");
-        AddButton.setFont(fontButton);
+        Font fontButton = new Font("Arial", Font.PLAIN, 16);
+        Font fontTitle = new Font("Segoe UI Variable Display Semib", Font.BOLD, 16);
+        JPanel buttonPanel = new JPanel(new GridLayout(4, 1));
+
+        buttonSearch = new JButton("Search Book");
+        buttonSearch.setPreferredSize(new Dimension(200, 30));
+        buttonSearch.setFont(fontButton);
         JPanel m1 = new JPanel(new FlowLayout());
-        m1.add(AddButton);
+        m1.add(buttonSearch);
 
-        BorrowedButton = new JButton("Borrowed Book");
-        BorrowedButton.setFont(fontButton);
+        buttonBorrowed = new JButton("Borrowed Books");
+        buttonBorrowed.setPreferredSize(new Dimension(200, 30));
+        buttonBorrowed.setFont(fontButton);
         JPanel m2 = new JPanel(new FlowLayout());
-        m2.add(BorrowedButton);
-        
-        SearchButton = new JButton("  Search Book  ");
-        SearchButton.setFont(fontButton);
+        m2.add(buttonBorrowed);
+
+        buttonReturn = new JButton("Return Book");
+        buttonReturn.setPreferredSize(new Dimension(200, 30));
+        buttonReturn.setFont(fontButton);
         JPanel m3 = new JPanel(new FlowLayout());
-        m3.add(SearchButton);
-        
-        UpdateButton = new JButton("  Update Book  ");
-        UpdateButton.setFont(fontButton);
-        JPanel m4 = new JPanel(new FlowLayout());
-        m4.add(UpdateButton);
-  
-        AddMemberButton = new JButton("  Add Member  ");
-        AddMemberButton.setFont(fontButton);
-        JPanel m5 = new JPanel(new FlowLayout());
-        m5.add(AddMemberButton);
-        
-        UpdateMemberButton = new JButton("Update Member"); 
-        UpdateMemberButton.setFont(fontButton);
-        JPanel m6 = new JPanel(new FlowLayout());
-        m6.add(UpdateMemberButton);
-        
-        StatisticsButton = new JButton("Statistics Report");
-        StatisticsButton.setFont(fontButton);
-        JPanel m7 = new JPanel(new FlowLayout());
-        m7.add(StatisticsButton);
-        
-        LogoutB = new JButton("      Log Out      ");
+        m3.add(buttonReturn);
+
+        LogoutB = new JButton("Log Out");
+        LogoutB.setPreferredSize(new Dimension(200, 30));
+
         LogoutB.setFont(fontButton);
-        JPanel m8 = new JPanel(new FlowLayout());
-        m8.add(LogoutB);
+        JPanel m4 = new JPanel(new FlowLayout());
+        m4.add(LogoutB);
         
-        mainP.add(m1);
-        mainP.add(m2);
-        mainP.add(m3);
-        mainP.add(m4);
-        mainP.add(m5);
-        mainP.add(m6);
-        mainP.add(m7);
-        mainP.add(m8);
+        buttonPanel.add(m1);
+        buttonPanel.add(m2);
+        buttonPanel.add(m3);
+        buttonPanel.add(m4);
 
-         JPanel mainpanel = (JPanel) this.getContentPane();
-         TitledBorder title;
-         title = BorderFactory.createTitledBorder("Dashboard Admin");
-         title.setTitleFont(fonttitle);
-         mainpanel.setBorder(title);
-         mainpanel.add(mainP,BorderLayout.CENTER);
+
+        JPanel mainPanel = (JPanel) this.getContentPane();
+        TitledBorder title = BorderFactory.createTitledBorder("Dashboard User");
+        title.setTitleFont(fontTitle);
+        mainPanel.setBorder(title);
+        mainPanel.add(buttonPanel , BorderLayout.CENTER);
+
+        buttonSearch.addActionListener(new SearchBookListener());
+        buttonBorrowed.addActionListener(new ViewBorrowedBooksListener());
+        buttonReturn.addActionListener(new ReturnBookListener());
+
         this.setVisible(true);
-
-        AddButton.addActionListener(new addBookButton());
-        BorrowedButton.addActionListener(new Borrowed() );
-        SearchButton.addActionListener(new searchBook());
-        UpdateButton.addActionListener(new updateBook());
-        AddMemberButton.addActionListener(new addMember());
-        UpdateMemberButton.addActionListener(new updateMember());
-        StatisticsButton.addActionListener(new statisticReport());
-        LogoutB.addActionListener(new Logout());
-
     }
-    
-    public class addBookButton implements ActionListener{
-    public void actionPerformed(ActionEvent e){
-        new addBook();
-        dispose();
-    
-    }}
-    
-    public class Borrowed implements ActionListener{
-    public void actionPerformed(ActionEvent e){
-    new BorrowedBook();
+
+    public class SearchBookListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+           new BookSearch("Member");
             dispose();
-    }}
-    
-      public class searchBook implements ActionListener{
-    public void actionPerformed(ActionEvent e){
-    new BookSearch("Admin");
+        }
+    }
+
+    public class ViewBorrowedBooksListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+           new BorrowedTableBook();
             dispose();
-    }}
-      
-        public class updateBook implements ActionListener{
-    public void actionPerformed(ActionEvent e){
-     new BookInventory();
-            dispose();
-    }}
+        }}
+
         
-    public class addMember implements ActionListener{
-    public void actionPerformed(ActionEvent e){
-            new NewMember();
-            dispose();
-
-
-    }}
-            
-    public class updateMember implements ActionListener{
-    public void actionPerformed(ActionEvent e){
-                new UpdateMember();
-                 dispose();
-
-
-    }}
-    
-    public class statisticReport implements ActionListener{
-    public void actionPerformed(ActionEvent e){
-            new ReportModule();
-            dispose();
-
-    }}
-    public class Logout implements ActionListener{
+    public class ReturnBookListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            new ReturnBook();
+            dispose(); 
+        }
+    }
+   public class Logout implements ActionListener{
     public void actionPerformed(ActionEvent e){
          int n = JOptionPane.showConfirmDialog(null , "Do you Want Log out ?","Log Out",JOptionPane.YES_NO_OPTION);
             if(n==0)
             System.exit(0);
     
     }}
-    
+
 }
 
 
