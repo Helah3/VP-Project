@@ -1,9 +1,9 @@
-
 package com.mycompany.project;
 
 import javax.swing.*;
 import java.awt.*;
-
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class ReturnBook extends JFrame {
     private JLabel dateReturnedLabel, bookNameLabel, yourNameLabel, emailLabel;
@@ -12,10 +12,8 @@ public class ReturnBook extends JFrame {
 
     public ReturnBook() {
         setTitle("Return Book");
-setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
-
-        
 
         // Create a panel for the form with GridLayout
         JPanel formPanel = new JPanel();
@@ -44,7 +42,7 @@ setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Create a panel for buttons with FlowLayout
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-        okButton = new JButton("Ok");
+        okButton = new JButton("OK");
         backButton = new JButton("Back");
         buttonPanel.add(okButton);
         buttonPanel.add(backButton);
@@ -52,8 +50,38 @@ setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         // Add form panel and button panel to the frame
         add(formPanel, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
-     pack();
 
+        // Add ActionListener to clear text fields on Back button click
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Clear all text fields
+                dateReturnedField.setText("");
+                bookNameField.setText("");
+                yourNameField.setText("");
+                emailField.setText("");
+            }
+        });
+
+        // Add ActionListener to OK button to check for empty fields
+        okButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Check if any field is empty
+                if (dateReturnedField.getText().trim().isEmpty() ||
+                        bookNameField.getText().trim().isEmpty() ||
+                        yourNameField.getText().trim().isEmpty() ||
+                        emailField.getText().trim().isEmpty()) {
+                    // Show warning message
+                    JOptionPane.showMessageDialog(null,"Please fill in the text field!","Warning",JOptionPane.WARNING_MESSAGE);
+                } else {
+                    // Process the form data (this is a placeholder for actual logic)
+JOptionPane.showMessageDialog(null,"Book return processed successfully!","Success",JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+        });
+
+        pack();
         setVisible(true);
     }
 
@@ -61,4 +89,3 @@ setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         new ReturnBook();
     }
 }
-
