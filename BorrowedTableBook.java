@@ -1,4 +1,4 @@
-import javax.swing.*;
+ import javax.swing.*;
 import java.awt.*;
 import javax.swing.table.*;
 import java.awt.event.*;
@@ -13,20 +13,16 @@ public class BorrowedTableBook extends JFrame {
     public BorrowedTableBook() {
         super("Borrowed Books");
 
-        // Window settings
         this.setSize(1024, 576);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocation(0, 0);
 
-        // Font settings
         Font fontButton = new Font("Arial", Font.PLAIN, 16);
         Font fontTable = new Font("Segoe UI Variable Display Semib", Font.BOLD, 14);
 
-        // Back button
         Back = new JButton("Back");
         Back.setFont(fontButton);
 
-        // Setting up the table
         DefaultTableModel model = new DefaultTableModel(columns, 0);
         table = new JTable(model);
         JScrollPane scrollPane = new JScrollPane(table);
@@ -34,14 +30,10 @@ public class BorrowedTableBook extends JFrame {
         header.setReorderingAllowed(false);
         header.setFont(fontTable);
 
-        // Load borrowed books from the database
-        try {
-            loadBorrowedBooks(model);
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error loading borrowed books: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-        }
+        int id = User.getUserID();
+        loadBorrowedBooks(model , id);
+       
 
-        // Panels
         JPanel subPanel1 = new JPanel();
         subPanel1.setLayout(new BorderLayout());
         subPanel1.add(scrollPane);
@@ -53,45 +45,65 @@ public class BorrowedTableBook extends JFrame {
         mainPanel.add(subPanel1, BorderLayout.CENTER);
         mainPanel.add(subPanel2, BorderLayout.PAGE_END);
 
-        // Back button event
         Back.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
-                dispose(); // Close current window
-                // Add navigation to the previous screen here
-                JOptionPane.showMessageDialog(null, "Returning to Dashboard...");
-                // Example: new DashboardUser(); Uncomment if DashboardUser class exists
+               new DashboardUser();
+                dispose(); 
             }
         });
 
         this.setVisible(true);
     }
 
-    private void loadBorrowedBooks(DefaultTableModel model) throws SQLException {
-        String query = "SELECT * FROM BorrowedBooks"; // Replace with your table name
+ private void loadBorrowedBooks(DefaultTableModel model, int loggedInUserID) {
+    String query = "SELECT Borrowings.*, Books.Title, Books.Author, Books.Genre " +
+                   "FROM Borrowings " +
+                   "INNER JOIN Books ON Borrowings.BookID = Books.BookID " +
+                   "WHERE Borrowings.UserID = ?";
 
-        try (Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/LibraryDB.accdb"); // Update database path
-             Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
+    try {
+        // Establishing the database connection
+        Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+        PreparedStatement stmt = c.prepareStatement(query);
+        stmt.setInt(1, loggedInUserID); 
 
-            int rowNumber = 1;
-            while (rs.next()) {
-                String title = rs.getString("Title");
-                String author = rs.getString("Author");
-                String genre = rs.getString("Genre");
-                Date borrowingDate = rs.getDate("BorrowingDate");
-                boolean returned = rs.getBoolean("Returned");
-                boolean overdue = rs.getBoolean("Overdue");
+        ResultSet rs = stmt.executeQuery();
 
-                model.addRow(new Object[]{rowNumber, title, author, genre, borrowingDate, returned ? "Yes" : "No", overdue ? "Yes" : "No"});
-                rowNumber++;
+        int rowNumber = 1; 
+        java.sql.Date currentDate = new java.sql.Date(System.currentTimeMillis()); 
+
+        model.setRowCount(0);
+
+        while (rs.next()) {
+            String title = rs.getString("Title");
+            String author = rs.getString("Author");
+            String genre = rs.getString("Genre");
+            java.sql.Date borrowDate = rs.getDate("BorrowDate");
+            java.sql.Date returnDate = rs.getDate("ReturnDate");
+            boolean isReturned = rs.getBoolean("IsReturned");
+
+            long delayDays = 0;
+            if (!isReturned && returnDate != null) {
+                long diff = currentDate.getTime() - returnDate.getTime();
+                delayDays = diff > 0 ? diff / (1000 * 60 * 60 * 24) : 0; 
             }
-        } catch (SQLException ex) {
-            throw new SQLException("Error retrieving borrowed books: " + ex.getMessage());
-        }
-    }
 
-    public static void main(String[] args) {
-        new BorrowedTableBook();
+            model.addRow(new Object[]{
+                rowNumber,
+                title,
+                author,
+                genre,
+                borrowDate != null ? borrowDate.toString() : "N/A",
+                returnDate != null ? returnDate.toString() : "N/A",
+                isReturned ? "No Delay" : (delayDays > 0 ? delayDays + " days" : "No Delay")
+            });
+
+            rowNumber++;
+        }
+    } catch (SQLException ex) {
+       ex.printStackTrace();
     }
+}
+
+   
 }
