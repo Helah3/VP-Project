@@ -1,4 +1,4 @@
-import java.awt.*;
+ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.sql.*;
@@ -106,6 +106,8 @@ public class OnlineLibaryManagementSystem extends JFrame {
             
             String uName = userNameTextField.getText();
             String password = new String(passwordTextField.getPassword());
+            int id = getIDOfUser(uName , password);
+            User.setUserID(id);
             String role = authenticate(uName ,password );
             if(role == null)
                    throw new ErrorLogin("Login unsuccessful , Check your information");
@@ -116,7 +118,7 @@ public class OnlineLibaryManagementSystem extends JFrame {
             }
             else if(role.equals("Member")){
                  JOptionPane.showMessageDialog(null , "Welcome Member ! ","Login successful",JOptionPane.INFORMATION_MESSAGE);
-                new MainDashboard();
+                new DashboardUser();
 
             }
                dispose();
@@ -167,8 +169,28 @@ public class OnlineLibaryManagementSystem extends JFrame {
         }
         return role ;
     }
+    
+    public int getIDOfUser(String username, String password) {
+    String query = "SELECT UserID FROM Users WHERE Username = ? AND Password = ?";
+    try{
+        Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+         PreparedStatement stmt = c.prepareStatement(query);
+
+        stmt.setString(1, username);
+        stmt.setString(2, password);
+
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+            return rs.getInt("UserID"); 
+        } 
+    }catch(SQLException s){
+        s.printStackTrace();
+    }
+    return 0 ;}
+    
     public static void main(String[] args) {
        OnlineLibaryManagementSystem L1 = new OnlineLibaryManagementSystem();
 
     }
 }
+
