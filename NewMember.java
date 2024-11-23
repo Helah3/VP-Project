@@ -140,6 +140,12 @@ public class NewMember extends JFrame {
 
                 if (addNewMember(UserName,Email,Password , Role ,  Gender, DateOfBitrthd)) {
                     JOptionPane.showMessageDialog(null, "Member added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    textUserName.setText("");
+                    passwordTextField.setText("");
+                    textEmail.setText("");
+                   genderGroup.clearSelection();
+                    datePublishedText.setDate(null);
+        roleGroup.clearSelection();
                 } else {
                     throw new DatabaseException("Failed to add member. Try again.");
                 }
@@ -186,11 +192,8 @@ public class NewMember extends JFrame {
         }
     }
 
-    // ** Custom Exception for Database Errors **
     public class DatabaseException extends Exception {
         public DatabaseException(String message) {
             super(message);
         }
     }
-   
-}
