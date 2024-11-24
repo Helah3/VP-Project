@@ -95,7 +95,7 @@ public class BookInventory extends JFrame {
 
         if (connection == null) return;
 
-        String query = "SELECT Title, Author, Genre, PublicationDate, Descripation " +
+        String query = "SELECT Title, Author, Genre, Descripation ,PublicationDate " +
                        "FROM Books"; // Query to fetch book data
 
         try {
@@ -111,8 +111,8 @@ public class BookInventory extends JFrame {
                 String title = rs.getString("Title");
                 String author = rs.getString("Author");
                 String genre = rs.getString("Genre");
-                String description = rs.getString("Descripation");
                 String rawDate = rs.getString("PublicationDate");
+                String description = rs.getString("Descripation");
                 String formattedDate = "";
 
                 if (rawDate != null && !rawDate.isEmpty()) {
@@ -121,7 +121,7 @@ public class BookInventory extends JFrame {
                 }
 
                 // Add row to the table
-                model.addRow(new Object[]{No, title, author, genre, description, formattedDate});
+                model.addRow(new Object[]{No, title, author, genre , description, formattedDate});
                 rowNumber++;
             }
 
