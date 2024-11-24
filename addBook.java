@@ -126,6 +126,13 @@ public class addBook extends JFrame {
 
                 if (addBookQuery(bookName, author, genre, isbn, sqlDate, description)) {
                     JOptionPane.showMessageDialog(null, "Add Book Successful", "Successful", JOptionPane.INFORMATION_MESSAGE);
+                    bookNameText.setText("");
+                    authorText.setText("");
+                    isbnText.setText("");
+                    descriptionText.setText("");
+                    GenreText.setText("");
+                    datePublishedText.setDate(null);
+ 
                 } else {
                     throw new ErrorAdd("Add Book unsuccessful");
                 }
@@ -181,4 +188,5 @@ public class addBook extends JFrame {
     
    
 }
+
 
