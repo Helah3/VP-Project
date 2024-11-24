@@ -1,4 +1,3 @@
-package ProjectPackage;
 
 import com.toedter.calendar.JDateChooser;
 import javax.swing.*;
@@ -18,20 +17,20 @@ public class UpdateBook extends JFrame {
     private String index;
 
     public UpdateBook(String index) {
-        super("");
-        this.index = index;//BookID that will be updated 
-        
-        //Window settings
+        super(""); 
+        this.index = index; // Store BookID for the book to be updated 
+
+        // Window settings
         this.setSize(1024, 576);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocation(0, 0);
 
-        //fonts setting
+        // Fonts for UI components
         Font fontButton = new Font("Arial", Font.PLAIN, 16);
         Font fontText = new Font("Segoe UI Variable Display Semib", Font.BOLD, 14);
         Font fontTitle = new Font("Segoe UI Variable Display Semib", Font.BOLD, 16);
 
-        //components 
+        // Initialize labels
         BookName = new JLabel("Book Name: ");
         BookName.setFont(fontText);
 
@@ -50,6 +49,7 @@ public class UpdateBook extends JFrame {
         Description = new JLabel("Description: ");
         Description.setFont(fontText);
 
+        // Initialize input fields
         BookNamet = new JTextField();
         BookNamet.setPreferredSize(new Dimension(150, 25));
 
@@ -67,16 +67,15 @@ public class UpdateBook extends JFrame {
 
         Descriptiont = new JTextField();
         Descriptiont.setPreferredSize(new Dimension(150, 25));
-        
-        //___________________________________________
-        
-        //Panels
+
+        // Create panel for input fields and labels
         JPanel subPanel = new JPanel();
         subPanel.setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
-        constraints.insets = new Insets(4, 5, 20, 5);
+        constraints.insets = new Insets(4, 5, 20, 5); // Set spacing around components
         constraints.anchor = GridBagConstraints.EAST;
 
+        // Add labels and fields to the panel
         constraints.gridx = 0;
         constraints.gridy = 0;
         subPanel.add(BookName, constraints);
@@ -113,18 +112,22 @@ public class UpdateBook extends JFrame {
         constraints.gridx = 1;
         subPanel.add(Descriptiont, constraints);
 
+        // Initialize buttons
         UpdateBook = new JButton("Update Book");
         UpdateBook.setFont(fontButton);
 
         Back = new JButton("Back");
         Back.setFont(fontButton);
 
+        // Panel for buttons
         JPanel buttons = new JPanel();
         buttons.add(UpdateBook);
         buttons.add(Back);
 
-        retrieveBookData(); // To get the book information for Admin
+        // Retrieve the current book data to prefill the fields
+        retrieveBookData();
 
+        // Main panel layout and border
         JPanel mainPanel1 = new JPanel();
         mainPanel1.setLayout(new BoxLayout(mainPanel1, BoxLayout.Y_AXIS));
         mainPanel1.setPreferredSize(new Dimension(700, 400));
@@ -138,19 +141,21 @@ public class UpdateBook extends JFrame {
         mainPanel.add(mainPanel1, BorderLayout.NORTH);
         mainPanel.add(buttons, BorderLayout.CENTER);
 
-        UpdateBook.addActionListener(new UpdateOperation()); //Update button Action
-        
-        Back.addActionListener(new ActionListener(){ //Back button Action
-        public void actionPerformed (ActionEvent e){
-            new BookInventory();
-            dispose(); 
-        }
+        // Add action listener to Update button
+        UpdateBook.addActionListener(new UpdateOperation());
+
+        // Add action listener to Back button
+        Back.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                new BookInventory();
+                dispose(); // Close the current window
+            }
         });
 
         this.setVisible(true);
     }
 
-    private static Connection databaseConnection() { //Connection Process
+    private static Connection databaseConnection() { // Establish a connection to the database
         try {
             return DriverManager.getConnection("jdbc:ucanaccess://C:/Users/helah/Downloads/LibraryDB.accdb");
         } catch (SQLException e) {
@@ -160,34 +165,33 @@ public class UpdateBook extends JFrame {
     }
 
     private void retrieveBookData() { 
-        Connection connection = databaseConnection(); //start Connection
+        Connection connection = databaseConnection(); // Connect to the database
         if (connection != null) {
             try {
-                String query = "SELECT Title, Author, Genre, PublicationDate, ISBN, Descripation FROM Books WHERE BookID = ?"; // sql statement (query) to get info from database
+                String query = "SELECT Title, Author, Genre, PublicationDate, ISBN, Descripation FROM Books WHERE BookID = ?";
                 PreparedStatement pstmt = connection.prepareStatement(query);
-                pstmt.setString(1, index);
+                pstmt.setString(1, index); // Use the book ID to find the book data
                 ResultSet rs = pstmt.executeQuery();
-                
-                
-                if (rs.next()) { // put the retrived data into the appropraite fields 
+
+                if (rs.next()) { // If book data is found, populate the fields
                     BookNamet.setText(rs.getString("Title"));
                     Authort.setText(rs.getString("Author"));
                     Genret.setText(rs.getString("Genre"));
                     String rawDate = rs.getString("PublicationDate");
-                    
-                    if (rawDate != null && !rawDate.isEmpty()) { // Format the Date 
+
+                    if (rawDate != null && !rawDate.isEmpty()) { // Parse the raw date and set it in the date chooser
                         Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(rawDate);
                         datePublishedText.setDate(date);
                     }
-                    
+
                     ISBNt.setText(rs.getString("ISBN"));
                     Descriptiont.setText(rs.getString("Descripation"));
                 }
-                
+
                 rs.close();
                 pstmt.close();
                 connection.close();
-                
+
             } catch (SQLException e) {
                 JOptionPane.showMessageDialog(null, "Failed to load book data", "Error", JOptionPane.ERROR_MESSAGE);
                 e.printStackTrace();
@@ -201,29 +205,30 @@ public class UpdateBook extends JFrame {
     private class UpdateOperation implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            Connection connection = databaseConnection(); //start connection 
+            Connection connection = databaseConnection(); // Connect to the database
             
-            if (connection == null) return;
+            if (connection == null) return; // If connection fails, exit method
 
             try {
                 String isbn = ISBNt.getText();
-                if (!isbn.matches("\\d+")) { // check if it it valid ISBN
+                if (!isbn.matches("\\d+")) { // Validate ISBN to be numeric
                     JOptionPane.showMessageDialog(null, "ISBN must be numeric.", "Input Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
-                int confirm = JOptionPane.showConfirmDialog( // Confirmation message for admin
+                int confirm = JOptionPane.showConfirmDialog( // Show confirmation dialog
                         null,
                         "Are you sure you want to update this book's details?",
                         "Confirm Update",
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE
                 );
-                if (confirm != JOptionPane.YES_OPTION) return;
+                if (confirm != JOptionPane.YES_OPTION) return; // Exit if user cancels update
                 
-                Date utilDate = datePublishedText.getDate();
+                Date utilDate = datePublishedText.getDate(); // Convert date from JDateChooser to SQL date format
                 java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
-                //start the update process
+
+                // SQL query to update the book information
                 String query = "UPDATE Books SET Title = ?, Author = ?, Genre = ?, PublicationDate = ?, ISBN = ?, Descripation = ? WHERE BookID = ?";
                 PreparedStatement pstmt = connection.prepareStatement(query);
                 pstmt.setString(1, BookNamet.getText());
@@ -234,11 +239,11 @@ public class UpdateBook extends JFrame {
                 pstmt.setString(6, Descriptiont.getText());
                 pstmt.setString(7, index);
 
-                if (pstmt.executeUpdate() > 0) { // message
+                if (pstmt.executeUpdate() > 0) { // Check if update was successful
                     JOptionPane.showMessageDialog(null, "Book updated successfully!", "Update Done", JOptionPane.INFORMATION_MESSAGE);
                 }
                 pstmt.close();
-                connection.close();
+                connection.close(); // Close connection
                 
             } catch (SQLException e1) {
                 JOptionPane.showMessageDialog(null, "Failed to update book in the database", "Database Error", JOptionPane.ERROR_MESSAGE);
