@@ -1,3 +1,6 @@
+package ProjectPackage;
+
+import com.toedter.calendar.JDateChooser;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -139,7 +142,7 @@ public class UpdateBook extends JFrame {
         
         Back.addActionListener(new ActionListener(){ //Back button Action
         public void actionPerformed (ActionEvent e){
-            new DashboardAdmin();
+            new BookInventory();
             dispose(); 
         }
         });
