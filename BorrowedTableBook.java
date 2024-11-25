@@ -1,4 +1,4 @@
- import javax.swing.*;
+import javax.swing.*;
 import java.awt.*;
 import javax.swing.table.*;
 import java.awt.event.*;
@@ -6,8 +6,8 @@ import java.sql.*;
 
 public class BorrowedTableBook extends JFrame {
 
-    private JButton Back;
-    private String columns[] = {"No.", "Title", "Author", "Genre", "Borrowing Date", "Returned", "Overdue"};
+    private JButton Back , returnB;
+    private String columns[] = {"No.", "BookID" , "Title", "Author", "Genre", "Borrowing Date", "Returned", "Overdue"};
     private JTable table;
 
     public BorrowedTableBook() {
@@ -22,6 +22,9 @@ public class BorrowedTableBook extends JFrame {
 
         Back = new JButton("Back");
         Back.setFont(fontButton);
+        
+        returnB = new JButton("Return");
+        returnB.setFont(fontButton);
 
         DefaultTableModel model = new DefaultTableModel(columns, 0);
         table = new JTable(model);
@@ -40,6 +43,8 @@ public class BorrowedTableBook extends JFrame {
 
         JPanel subPanel2 = new JPanel();
         subPanel2.add(Back);
+        subPanel2.add(returnB);
+
 
         JPanel mainPanel = (JPanel) this.getContentPane();
         mainPanel.add(subPanel1, BorderLayout.CENTER);
@@ -50,8 +55,8 @@ public class BorrowedTableBook extends JFrame {
                new DashboardUser();
                 dispose(); 
             }
-        });
-
+        });   
+        returnB.addActionListener(new returnButton());
         this.setVisible(true);
     }
 
@@ -59,7 +64,7 @@ public class BorrowedTableBook extends JFrame {
     String query = "SELECT Borrowings.*, Books.Title, Books.Author, Books.Genre " +
                    "FROM Borrowings " +
                    "INNER JOIN Books ON Borrowings.BookID = Books.BookID " +
-                   "WHERE Borrowings.UserID = ?";
+                   "WHERE Borrowings.UserID = ? AND IsReturned = FALSE";
 
     try {
         // Establishing the database connection
@@ -75,6 +80,7 @@ public class BorrowedTableBook extends JFrame {
         model.setRowCount(0);
 
         while (rs.next()) {
+            int bookID = rs.getInt("BookID");
             String title = rs.getString("Title");
             String author = rs.getString("Author");
             String genre = rs.getString("Genre");
@@ -90,6 +96,7 @@ public class BorrowedTableBook extends JFrame {
 
             model.addRow(new Object[]{
                 rowNumber,
+                bookID,
                 title,
                 author,
                 genre,
@@ -104,6 +111,71 @@ public class BorrowedTableBook extends JFrame {
        ex.printStackTrace();
     }
 }
+    public class returnButton implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+          int selectedRow = table.getSelectedRow(); 
+          
+          if (selectedRow == -1) { 
+              JOptionPane.showMessageDialog(null, "Please select a book to return.", "No Book Selected", JOptionPane.WARNING_MESSAGE);
+              return; } 
+            
+          // Get the BookID and BorrowID from the selected row
+          int bookID = (int) table.getValueAt(selectedRow, 1);
+          int borrowID = getBorrowID(bookID);
+            int n = JOptionPane.showConfirmDialog(null , "Do you Want Log out ?","Log Out",JOptionPane.YES_NO_OPTION);
+            if(n==0){
+           if (returnBook(borrowID, bookID)) { 
+               
+               JOptionPane.showMessageDialog(null, "Book returned successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                        ((DefaultTableModel) table.getModel()).removeRow(selectedRow);  
+           }
+           else {
+               JOptionPane.showMessageDialog(null, "Failed to return the book. Please try again.", "Error", JOptionPane.ERROR_MESSAGE); } }
+        }}
+    
+   private boolean returnBook(int borrowID, int bookID) { 
+    
+    String updateBorrowingQuery = "UPDATE Borrowings SET IsReturned = ? WHERE BorrowID = ?";
+    String updateBookQuery = "UPDATE Books SET Avaliable = ? WHERE BookID = ?"; 
+    try {
+        
+     Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+    
+     // Step 1: Update Borrowings table
+     PreparedStatement updateBorrowingStmt = c.prepareStatement(updateBorrowingQuery); 
+     updateBorrowingStmt.setBoolean(1, true);
+     updateBorrowingStmt.setInt(2, borrowID); 
+     int rowsBorrowingUpdated = updateBorrowingStmt.executeUpdate(); 
 
-   
+// Step 2: Update Books table
+
+PreparedStatement updateBookStmt = c.prepareStatement(updateBookQuery); 
+updateBookStmt.setBoolean(1, true);
+
+// Mark as available
+updateBookStmt.setInt(2, bookID); 
+int rowsBookUpdated = updateBookStmt.executeUpdate(); 
+return rowsBorrowingUpdated > 0 && rowsBookUpdated > 0;
+} catch (SQLException ex) 
+{ ex.printStackTrace(); 
+return false;
+} } 
+
+private int getBorrowID(int bookID) {
+    
+    String query = "SELECT BorrowID FROM Borrowings WHERE BookID = ? AND UserID = ? AND IsReturned = FALSE";
+ try {
+     Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+     PreparedStatement stmt = c.prepareStatement(query);
+     stmt.setInt(1, bookID);
+     stmt.setInt(2, User.getUserID());
+     ResultSet rs = stmt.executeQuery(); 
+     
+     if (rs.next()) { 
+         return rs.getInt("BorrowID");
+     } } catch (SQLException ex) { 
+         
+         ex.printStackTrace();
+     } return -1; // Return -1 if BorrowID not found 
 }
+    }
