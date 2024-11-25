@@ -30,7 +30,7 @@ public class DashboardUser extends JFrame {
         JPanel m2 = new JPanel(new FlowLayout());
         m2.add(buttonBorrowed);
 
-        buttonReturn = new JButton("Return Book");
+        buttonReturn = new JButton("Borrow Book");
         buttonReturn.setPreferredSize(new Dimension(200, 30));
         buttonReturn.setFont(fontButton);
         JPanel m3 = new JPanel(new FlowLayout());
