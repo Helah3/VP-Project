@@ -1,5 +1,3 @@
-package ProjectPackage;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -8,6 +6,8 @@ import java.sql.*;
 import java.text.*;
 import javax.swing.table.*;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -27,7 +27,6 @@ public class BookSearch extends JFrame {
     // Constructor for initializing the GUI components.
     public BookSearch() {
         super(""); // Create a window without a title.
-
         // Set up the window properties.
         this.setSize(1024, 576);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -104,9 +103,28 @@ public class BookSearch extends JFrame {
         // Action for the "Back" button
         back.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                new DashboardAdmin(); 
-                dispose(); // Close the current window.
-            }
+                int id = User.getUserID();
+                String role = "";
+                 Connection connection = DatabaseConnection(); // Connect to the database.
+                 String query = "SELECT Role FROM Users Where UserID = ? "; 
+                try { 
+                    PreparedStatement pstmt = connection.prepareStatement(query);
+                      pstmt.setInt(1, id);
+
+                         ResultSet rs = pstmt.executeQuery();
+                        if (rs.next()) {
+                                role =  rs.getString("Role");
+                        } 
+                        if(role.equals("Admin"))
+                              new DashboardAdmin(); 
+                        else 
+                            new DashboardUser();
+                   dispose(); // Close the current window.
+
+                } catch (SQLException ex) {
+                    ex.printStackTrace(); 
+                }
+                            }
         });
         
         // Action for the "Search" button
@@ -117,7 +135,7 @@ public class BookSearch extends JFrame {
     // Establish connection to the database.
     private static Connection DatabaseConnection() {
         try {
-            Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/helah/Downloads/LibraryDB.accdb");
+        Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
             System.out.println("Database connected successfully!");
             return connection;
         } catch (SQLException e) {
