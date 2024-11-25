@@ -58,6 +58,7 @@ public class DashboardUser extends JFrame {
         buttonSearch.addActionListener(new SearchBookListener());
         buttonBorrowed.addActionListener(new ViewBorrowedBooksListener());
         buttonReturn.addActionListener(new ReturnBookListener());
+        LogoutB.addActionListener(new Logout());
 
         this.setVisible(true);
     }
