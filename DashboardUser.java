@@ -65,7 +65,7 @@ public class DashboardUser extends JFrame {
 
     public class SearchBookListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-           new BookSearch("Member");
+           new BookSearch();
             dispose();
         }
     }
@@ -79,7 +79,7 @@ public class DashboardUser extends JFrame {
         
     public class ReturnBookListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            new ReturnBook();
+            new BooksTable();
             dispose(); 
         }
     }
@@ -92,4 +92,3 @@ public class DashboardUser extends JFrame {
     }}
 
 }
-
