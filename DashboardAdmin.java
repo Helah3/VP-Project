@@ -103,7 +103,7 @@ public class DashboardAdmin extends JFrame {
     
       public class searchBook implements ActionListener{
     public void actionPerformed(ActionEvent e){
-    new BookSearch("Admin");
+    new BookSearch();
             dispose();
     }}
       
