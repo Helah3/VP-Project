@@ -1,5 +1,4 @@
-
-import java.awt.*;
+ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -7,7 +6,6 @@ import javax.swing.border.TitledBorder;
 public class DashboardAdmin extends JFrame {
     
     private  JButton AddButton , BorrowedButton , SearchButton,UpdateButton , AddMemberButton , UpdateMemberButton , StatisticsButton , LogoutB;
-
     
     public DashboardAdmin(){
 
