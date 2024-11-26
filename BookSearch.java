@@ -122,7 +122,7 @@ public class BookSearch extends JFrame {
                    dispose(); // Close the current window.
 
                 } catch (SQLException ex) {
-                    ex.printStackTrace(); 
+            ex.printStackTrace(); 
                 }
                             }
         });
