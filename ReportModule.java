@@ -1,5 +1,5 @@
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
@@ -42,6 +42,8 @@ public class ReportModule extends JFrame {
 
         tableModel = new DefaultTableModel();
         reportTable = new JTable(tableModel);
+         JTableHeader header = reportTable.getTableHeader();
+        header.setReorderingAllowed(false);
         JScrollPane tableScrollPane = new JScrollPane(reportTable);
 
         add(panel, BorderLayout.NORTH);
@@ -96,6 +98,7 @@ String query = "SELECT u.UserName, b.BookID, b.BorrowDate, b.ReturnDate " +
     }
 
     private void generatePopularBooksReport() {
+
         tableModel.setColumnIdentifiers(new String[]{"Book Title", "Borrow Count"});
         tableModel.setRowCount(0);
 
@@ -153,7 +156,6 @@ String query = "SELECT u.UserName, b.BookID, b.BorrowDate, b.ReturnDate " +
             dispose();
         }
     }
+ 
 
 }
-
-
