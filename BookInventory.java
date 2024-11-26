@@ -1,4 +1,3 @@
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -78,7 +77,7 @@ public class BookInventory extends JFrame {
     // Establish a connection to the database
     private static Connection DatabaseConnection() {
         try {
-            Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/helah/Downloads/LibraryDB.accdb");
+Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
             System.out.println("Database connected successfully!");
             return connection;
         } catch (SQLException e) {
@@ -252,5 +251,5 @@ public class BookInventory extends JFrame {
             }
             return bookID;
         }
-    }
-}
+
+}}
