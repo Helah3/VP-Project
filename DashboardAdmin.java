@@ -151,9 +151,5 @@ public class DashboardAdmin extends JFrame {
             System.exit(0);
     
     }}
-      public static void main(String[] args) {
-       DashboardAdmin L1 = new DashboardAdmin();
-
-    }
     
 }
