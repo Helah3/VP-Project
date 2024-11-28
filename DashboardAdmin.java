@@ -1,88 +1,99 @@
- import java.awt.*;
+import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
 public class DashboardAdmin extends JFrame {
     
-    private  JButton AddButton , BorrowedButton , SearchButton,UpdateButton , AddMemberButton , UpdateMemberButton , StatisticsButton , LogoutB;
-    
+    private JLabel titleLabel, descriptionLabel;
     public DashboardAdmin(){
 
         this.setTitle("");
         this.setSize(1024, 576);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocation(0,0);
-        Font fontButton = new Font("Arial", Font.PLAIN, 16); 
-        Font fonttitle = new Font("Segoe UI Variable Display Semib", Font.BOLD, 16); 
+       
+        Font titleFont = new Font("Arial", Font.BOLD, 24);
+        Font textFont = new Font("Arial", Font.PLAIN, 16);
 
-        JPanel mainP = new JPanel(new GridLayout(8,1));
+        String welcome = "  Welcome to Online Library Management System  ";
+        titleLabel = new JLabel(welcome, SwingConstants.CENTER);
+        titleLabel.setFont(titleFont);
+        titleLabel.setForeground(new Color(34,139,230));
+        titleLabel.setBorder(new EmptyBorder(150, 150, 0, 20));
         
-        AddButton = new JButton("     Add Book     ");
-        AddButton.setFont(fontButton);
-        JPanel m1 = new JPanel(new FlowLayout());
-        m1.add(AddButton);
+         String description = "<html><div style='text-align: center;'>"
+                + "Welcome to <b>Online Library Management System</b>, a comprehensive platform designed to enhance users' experience<br>"
+                + "in accessing educational resources and academic references with ease. The system provides a wide range<br>"
+                + "of services, including member registration, book search, availability checks, and borrowing management.<br><br>"
+                + "This system is built with a user-friendly interface that combines simplicity and efficiency to cater<br>"
+                + "to the needs of students, academics, and researchers. Our library supports e-learning by integrating<br>"
+                + "the latest technologies, enabling access to knowledge anytime and anywhere."
+                + "</div></html>";
 
-        BorrowedButton = new JButton("Borrowed Book");
-        BorrowedButton.setFont(fontButton);
-        JPanel m2 = new JPanel(new FlowLayout());
-        m2.add(BorrowedButton);
-        
-        SearchButton = new JButton("  Search Book  ");
-        SearchButton.setFont(fontButton);
-        JPanel m3 = new JPanel(new FlowLayout());
-        m3.add(SearchButton);
-        
-        UpdateButton = new JButton("  Update Book  ");
-        UpdateButton.setFont(fontButton);
-        JPanel m4 = new JPanel(new FlowLayout());
-        m4.add(UpdateButton);
-  
-        AddMemberButton = new JButton("  Add Member  ");
-        AddMemberButton.setFont(fontButton);
-        JPanel m5 = new JPanel(new FlowLayout());
-        m5.add(AddMemberButton);
-        
-        UpdateMemberButton = new JButton("Update Member"); 
-        UpdateMemberButton.setFont(fontButton);
-        JPanel m6 = new JPanel(new FlowLayout());
-        m6.add(UpdateMemberButton);
-        
-        StatisticsButton = new JButton("Statistics Report");
-        StatisticsButton.setFont(fontButton);
-        JPanel m7 = new JPanel(new FlowLayout());
-        m7.add(StatisticsButton);
-        
-        LogoutB = new JButton("      Log Out      ");
-        LogoutB.setFont(fontButton);
-        JPanel m8 = new JPanel(new FlowLayout());
-        m8.add(LogoutB);
-        
-        mainP.add(m1);
-        mainP.add(m2);
-        mainP.add(m3);
-        mainP.add(m4);
-        mainP.add(m5);
-        mainP.add(m6);
-        mainP.add(m7);
-        mainP.add(m8);
+        descriptionLabel = new JLabel(description, SwingConstants.CENTER);
+        descriptionLabel.setFont(textFont);
 
-         JPanel mainpanel = (JPanel) this.getContentPane();
-         TitledBorder title;
-         title = BorderFactory.createTitledBorder("Dashboard Admin");
-         title.setTitleFont(fonttitle);
-         mainpanel.setBorder(title);
-         mainpanel.add(mainP,BorderLayout.CENTER);
+        
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        mainPanel.add(titleLabel);
+        mainPanel.add(Box.createVerticalStrut(20)); // Add spacing
+        mainPanel.add(descriptionLabel);
+
+        
+       JPanel Main = (JPanel) this.getContentPane();
+       Main.setLayout(new FlowLayout(FlowLayout.CENTER));
+        Main.add(mainPanel);
+        
+        JMenuBar mb = new JMenuBar();
+        JMenu book = new JMenu("Book");
+        JMenu member = new JMenu("Member");
+        JMenu notification  = new JMenu("Notification ");
+        JMenuItem addBook = new JMenuItem("Add Book");
+        JMenuItem Borrowed = new JMenuItem("Borrowed Book");
+        JMenuItem Search = new JMenuItem("Search Book");
+        JMenuItem Update = new JMenuItem("Update Book");
+        JMenuItem AddMember = new JMenuItem("Add Member");
+        JMenuItem UpdateMember = new JMenuItem("Update Member");
+        JMenuItem  Statistic = new JMenuItem("Statistics Report");
+        JMenuItem ExitOption = new JMenuItem("Log Out");
+
+        
+        setJMenuBar(mb);
+        mb.add(book);
+        mb.add(member);
+        mb.add(notification ); 
+        
+        book.add(addBook);
+        book.add(Borrowed);
+        book.add(Search);
+        book.add(Update);
+        book.add(Statistic); 
+
+        member.add(AddMember);
+        member.add(UpdateMember);
+
+        mb.add(Box.createHorizontalGlue());
+        JPanel logoutPane = new JPanel(new FlowLayout(FlowLayout.RIGHT,0,0));
+        logoutPane.setOpaque(false);
+        logoutPane.add(ExitOption);
+        mb.add(logoutPane);
+   
+
         this.setVisible(true);
 
-        AddButton.addActionListener(new addBookButton());
-        BorrowedButton.addActionListener(new Borrowed() );
-        SearchButton.addActionListener(new searchBook());
-        UpdateButton.addActionListener(new updateBook());
-        AddMemberButton.addActionListener(new addMember());
-        UpdateMemberButton.addActionListener(new updateMember());
-        StatisticsButton.addActionListener(new statisticReport());
-        LogoutB.addActionListener(new Logout());
+        addBook.addActionListener(new addBookButton());
+        Borrowed.addActionListener(new Borrowed() );
+        Search.addActionListener(new searchBook());
+        Update.addActionListener(new updateBook());
+        AddMember.addActionListener(new addMember());
+        UpdateMember.addActionListener(new updateMember());
+        Statistic.addActionListener(new statisticReport());
+        ExitOption.addActionListener(new Logout());
 
     }
     
@@ -140,7 +151,9 @@ public class DashboardAdmin extends JFrame {
             System.exit(0);
     
     }}
+      public static void main(String[] args) {
+       DashboardAdmin L1 = new DashboardAdmin();
+
+    }
     
 }
-
-
