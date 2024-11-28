@@ -2,16 +2,17 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.sql.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
 
 
 public class OnlineLibaryManagementSystem extends JFrame {
     
-    private JLabel TitleLabel , userNameLabel , passwordLabel ;
+    private JLabel TitleLabel , userNameLabel , passwordLabel , AccountLabel;
     private JTextField userNameTextField  ;
     private JPasswordField passwordTextField;
-    private JButton LogInButton , ExitButton ;
+    private JButton LogInButton  , signButton ;
     private JCheckBox showPassword ;
     
     public OnlineLibaryManagementSystem(){
@@ -26,7 +27,7 @@ public class OnlineLibaryManagementSystem extends JFrame {
         Font fontText = new Font("Segoe UI Variable Display Semib", Font.BOLD, 14); 
         Font fonttitle = new Font("Segoe UI Variable Display Semib", Font.BOLD, 16); 
 
-        JPanel mainP = new JPanel (new GridLayout(4,1));
+        JPanel mainP = new JPanel (new GridLayout(3,1));
 
         JPanel m1 = new JPanel(new FlowLayout(FlowLayout.CENTER));
         TitleLabel = new  JLabel("Welcome to  Libary Management System");
@@ -53,23 +54,36 @@ public class OnlineLibaryManagementSystem extends JFrame {
         
        JPanel m5 = new JPanel(new FlowLayout(FlowLayout.CENTER));
         LogInButton = new JButton("  Login  ");
+        LogInButton.setPreferredSize(new Dimension(150, 25));
         LogInButton.setFont(fontButton);
         m5.add(LogInButton);
         
-       JPanel m6 = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        ExitButton = new JButton("  Exit  ");
-        ExitButton.setFont(fontButton);
-        m6.add(ExitButton);
+         JPanel m6 = new JPanel(new GridLayout(2,1));
+         m6.add(m3);
+         m6.add(m4);
         
-       JPanel m7 = new JPanel(new GridLayout(2,1));
+        JPanel m8 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        AccountLabel = new JLabel("Don't have a account ? ");
+        AccountLabel.setForeground(Color.gray);
+        signButton = new JButton("Sign Up");
+        signButton.setFont(fontButton);
+        signButton.setPreferredSize(new Dimension(150, 25));
+        AccountLabel.setBorder(new EmptyBorder(0, 250, 0, 30));
+
+        m8.add(AccountLabel);
+        m8.add(signButton);
+        
+       JPanel m7 = new JPanel(new GridLayout(3,1));
        m7.add(m5);
-       m7.add(m6);
+       m7.add(m8);
+
+
+
 
       
         mainP.add(m1);
         mainP.add(m2);
-        mainP.add(m3);
-        mainP.add(m4);
+        mainP.add(m6);
 
             JPanel mainpanel = (JPanel) this.getContentPane();
             TitledBorder title;
@@ -80,8 +94,7 @@ public class OnlineLibaryManagementSystem extends JFrame {
             mainpanel.add(m7,BorderLayout.SOUTH);
 
         LogInButton.addActionListener(new LogInButtonAction());
-        ExitButton.addActionListener(new ExitButtonAction());
-        
+        signButton.addActionListener(new signButton());
        showPassword.addItemListener(new ItemListener() { 
                      public void itemStateChanged(ItemEvent e) { 
                          if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -95,6 +108,11 @@ public class OnlineLibaryManagementSystem extends JFrame {
       
          
     }
+    public class signButton implements ActionListener{
+        public void actionPerformed(ActionEvent e){
+            new signUp();
+            dispose();
+        }}
     
      public class LogInButtonAction implements ActionListener{
         public void actionPerformed(ActionEvent e){
@@ -144,13 +162,7 @@ public class OnlineLibaryManagementSystem extends JFrame {
             super(msg);
         }
     }
-    public class ExitButtonAction implements ActionListener{
-        public void actionPerformed(ActionEvent e){
-            int n = JOptionPane.showConfirmDialog(null , "Do you Want Exit ?","Exit",JOptionPane.YES_NO_OPTION);
-            if(n==0)
-            System.exit(0);
-        }
-    }
+ 
     
     public String authenticate(String Uname , String password){
         String role = null ;
@@ -195,4 +207,5 @@ public class OnlineLibaryManagementSystem extends JFrame {
 
     }
 }
+
 
