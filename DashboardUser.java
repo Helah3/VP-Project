@@ -1,94 +1,157 @@
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
-import java.sql.*;
 
-public class DashboardUser extends JFrame {
+public class DashboardAdmin extends JFrame {
+    
+    private JLabel titleLabel, descriptionLabel;
+    public DashboardAdmin(){
 
-    private JButton buttonSearch, buttonBorrowed, buttonReturn , LogoutB;
-
-    public DashboardUser() {
-        this.setTitle("User Dashboard");
+        this.setTitle("");
         this.setSize(1024, 576);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setLocation(0, 0);
+        this.setLocation(0,0);
+       
+        Font titleFont = new Font("Arial", Font.BOLD, 24);
+        Font textFont = new Font("Arial", Font.PLAIN, 16);
 
-        Font fontButton = new Font("Arial", Font.PLAIN, 16);
-        Font fontTitle = new Font("Segoe UI Variable Display Semib", Font.BOLD, 16);
-        JPanel buttonPanel = new JPanel(new GridLayout(4, 1));
-
-        buttonSearch = new JButton("Search Book");
-        buttonSearch.setPreferredSize(new Dimension(200, 30));
-        buttonSearch.setFont(fontButton);
-        JPanel m1 = new JPanel(new FlowLayout());
-        m1.add(buttonSearch);
-
-        buttonBorrowed = new JButton("Borrowed Books");
-        buttonBorrowed.setPreferredSize(new Dimension(200, 30));
-        buttonBorrowed.setFont(fontButton);
-        JPanel m2 = new JPanel(new FlowLayout());
-        m2.add(buttonBorrowed);
-
-        buttonReturn = new JButton("Borrow Book");
-        buttonReturn.setPreferredSize(new Dimension(200, 30));
-        buttonReturn.setFont(fontButton);
-        JPanel m3 = new JPanel(new FlowLayout());
-        m3.add(buttonReturn);
-
-        LogoutB = new JButton("Log Out");
-        LogoutB.setPreferredSize(new Dimension(200, 30));
-
-        LogoutB.setFont(fontButton);
-        JPanel m4 = new JPanel(new FlowLayout());
-        m4.add(LogoutB);
+        String welcome = "  Welcome to Online Library Management System  ";
+        titleLabel = new JLabel(welcome, SwingConstants.CENTER);
+        titleLabel.setFont(titleFont);
+        titleLabel.setForeground(new Color(34,139,230));
+        titleLabel.setBorder(new EmptyBorder(150, 150, 0, 20));
         
-        buttonPanel.add(m1);
-        buttonPanel.add(m2);
-        buttonPanel.add(m3);
-        buttonPanel.add(m4);
+         String description = "<html><div style='text-align: center;'>"
+                + "Welcome to <b>Online Library Management System</b>, a comprehensive platform designed to enhance users' experience<br>"
+                + "in accessing educational resources and academic references with ease. The system provides a wide range<br>"
+                + "of services, including member registration, book search, availability checks, and borrowing management.<br><br>"
+                + "This system is built with a user-friendly interface that combines simplicity and efficiency to cater<br>"
+                + "to the needs of students, academics, and researchers. Our library supports e-learning by integrating<br>"
+                + "the latest technologies, enabling access to knowledge anytime and anywhere."
+                + "</div></html>";
 
+        descriptionLabel = new JLabel(description, SwingConstants.CENTER);
+        descriptionLabel.setFont(textFont);
 
-        JPanel mainPanel = (JPanel) this.getContentPane();
-        TitledBorder title = BorderFactory.createTitledBorder("Dashboard User");
-        title.setTitleFont(fontTitle);
-        mainPanel.setBorder(title);
-        mainPanel.add(buttonPanel , BorderLayout.CENTER);
+        
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        mainPanel.add(titleLabel);
+        mainPanel.add(Box.createVerticalStrut(20)); // Add spacing
+        mainPanel.add(descriptionLabel);
 
-        buttonSearch.addActionListener(new SearchBookListener());
-        buttonBorrowed.addActionListener(new ViewBorrowedBooksListener());
-        buttonReturn.addActionListener(new ReturnBookListener());
-        LogoutB.addActionListener(new Logout());
+        
+       JPanel Main = (JPanel) this.getContentPane();
+       Main.setLayout(new FlowLayout(FlowLayout.CENTER));
+        Main.add(mainPanel);
+        
+        JMenuBar mb = new JMenuBar();
+        JMenu book = new JMenu("Book");
+        JMenu member = new JMenu("Member");
+        JMenu notification  = new JMenu("Notification ");
+        JMenuItem addBook = new JMenuItem("Add Book");
+        JMenuItem Borrowed = new JMenuItem("Borrowed Book");
+        JMenuItem Search = new JMenuItem("Search Book");
+        JMenuItem Update = new JMenuItem("Update Book");
+        JMenuItem AddMember = new JMenuItem("Add Member");
+        JMenuItem UpdateMember = new JMenuItem("Update Member");
+        JMenuItem  Statistic = new JMenuItem("Statistics Report");
+        JMenuItem ExitOption = new JMenuItem("Log Out");
+
+        
+        setJMenuBar(mb);
+        mb.add(book);
+        mb.add(member);
+        mb.add(notification ); 
+        
+        book.add(addBook);
+        book.add(Borrowed);
+        book.add(Search);
+        book.add(Update);
+        book.add(Statistic); 
+
+        member.add(AddMember);
+        member.add(UpdateMember);
+
+        mb.add(Box.createHorizontalGlue());
+        JPanel logoutPane = new JPanel(new FlowLayout(FlowLayout.RIGHT,0,0));
+        logoutPane.setOpaque(false);
+        logoutPane.add(ExitOption);
+        mb.add(logoutPane);
+   
 
         this.setVisible(true);
+
+        addBook.addActionListener(new addBookButton());
+        Borrowed.addActionListener(new Borrowed() );
+        Search.addActionListener(new searchBook());
+        Update.addActionListener(new updateBook());
+        AddMember.addActionListener(new addMember());
+        UpdateMember.addActionListener(new updateMember());
+        Statistic.addActionListener(new statisticReport());
+        ExitOption.addActionListener(new Logout());
+
     }
-
-    public class SearchBookListener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-           new BookSearch();
+    
+    public class addBookButton implements ActionListener{
+    public void actionPerformed(ActionEvent e){
+        new addBook();
+        dispose();
+    
+    }}
+    
+    public class Borrowed implements ActionListener{
+    public void actionPerformed(ActionEvent e){
+    new BorrowedBook();
             dispose();
-        }
-    }
-
-    public class ViewBorrowedBooksListener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-           new BorrowedTableBook();
+    }}
+    
+      public class searchBook implements ActionListener{
+    public void actionPerformed(ActionEvent e){
+    new BookSearch();
             dispose();
-        }}
-
+    }}
+      
+        public class updateBook implements ActionListener{
+    public void actionPerformed(ActionEvent e){
+     new BookInventory();
+            dispose();
+    }}
         
-    public class ReturnBookListener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-            new BooksTable();
-            dispose(); 
-        }
-    }
-   public class Logout implements ActionListener{
+    public class addMember implements ActionListener{
+    public void actionPerformed(ActionEvent e){
+            new NewMember();
+            dispose();
+
+
+    }}
+            
+    public class updateMember implements ActionListener{
+    public void actionPerformed(ActionEvent e){
+                new UpdateMember();
+                 dispose();
+
+
+    }}
+    
+    public class statisticReport implements ActionListener{
+    public void actionPerformed(ActionEvent e){
+            new ReportModule();
+            dispose();
+
+    }}
+    public class Logout implements ActionListener{
     public void actionPerformed(ActionEvent e){
          int n = JOptionPane.showConfirmDialog(null , "Do you Want Log out ?","Log Out",JOptionPane.YES_NO_OPTION);
             if(n==0)
             System.exit(0);
     
     }}
-
+   
+    
 }
+
