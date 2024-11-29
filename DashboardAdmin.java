@@ -1,8 +1,7 @@
-import java.awt.*;
+ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
+import javax.swing.border.*;
 
 public class DashboardAdmin extends JFrame {
     
@@ -53,6 +52,8 @@ public class DashboardAdmin extends JFrame {
         JMenu book = new JMenu("Book");
         JMenu member = new JMenu("Member");
         JMenu notification  = new JMenu("Notification ");
+        JMenu content = new JMenu("=");
+        JMenuItem Profile = new JMenuItem("Profile");
         JMenuItem addBook = new JMenuItem("Add Book");
         JMenuItem Borrowed = new JMenuItem("Borrowed Book");
         JMenuItem Search = new JMenuItem("Search Book");
@@ -64,6 +65,7 @@ public class DashboardAdmin extends JFrame {
 
         
         setJMenuBar(mb);
+        mb.add(content);
         mb.add(book);
         mb.add(member);
         mb.add(notification ); 
@@ -76,6 +78,8 @@ public class DashboardAdmin extends JFrame {
 
         member.add(AddMember);
         member.add(UpdateMember);
+        
+        content.add(Profile);
 
         mb.add(Box.createHorizontalGlue());
         JPanel logoutPane = new JPanel(new FlowLayout(FlowLayout.RIGHT,0,0));
@@ -86,6 +90,7 @@ public class DashboardAdmin extends JFrame {
 
         this.setVisible(true);
 
+        Profile.addActionListener(new profileUser());
         addBook.addActionListener(new addBookButton());
         Borrowed.addActionListener(new Borrowed() );
         Search.addActionListener(new searchBook());
@@ -95,6 +100,13 @@ public class DashboardAdmin extends JFrame {
         Statistic.addActionListener(new statisticReport());
         ExitOption.addActionListener(new Logout());
 
+    }
+    
+     public class profileUser implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+           new UserProfile();
+            dispose();
+        }
     }
     
     public class addBookButton implements ActionListener{
@@ -151,5 +163,6 @@ public class DashboardAdmin extends JFrame {
             System.exit(0);
     
     }}
+   
     
 }
