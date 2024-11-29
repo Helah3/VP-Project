@@ -32,6 +32,8 @@ public class OnlineLibaryManagementSystem extends JFrame {
         JPanel m1 = new JPanel(new FlowLayout(FlowLayout.CENTER));
         TitleLabel = new  JLabel("Welcome to  Libary Management System");
         TitleLabel.setFont(fonttitle);
+        TitleLabel.setBorder(new EmptyBorder(60, 50, 0, 20));
+
         m1.add(TitleLabel);
         
         JPanel m2 = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -207,5 +209,3 @@ public class OnlineLibaryManagementSystem extends JFrame {
 
     }
 }
-
-
