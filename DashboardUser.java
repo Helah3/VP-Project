@@ -1,23 +1,24 @@
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import java.sql.*;
+import javax.swing.border.EmptyBorder;
 
-public class DashboardAdmin extends JFrame {
-    
+public class DashboardUser extends JFrame {
+
     private JLabel titleLabel, descriptionLabel;
-    public DashboardAdmin(){
 
-        this.setTitle("");
+    public DashboardUser() {
+        this.setTitle("User Dashboard");
         this.setSize(1024, 576);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setLocation(0,0);
-       
-        Font titleFont = new Font("Arial", Font.BOLD, 24);
-        Font textFont = new Font("Arial", Font.PLAIN, 16);
+        this.setLocation(0, 0);
 
-        String welcome = "  Welcome to Online Library Management System  ";
+          Font titleFont = new Font("Arial", Font.BOLD, 24);
+        Font textFont = new Font("Arial", Font.PLAIN, 16);
+        
+         String welcome = "  Welcome to Online Library Management System  ";
         titleLabel = new JLabel(welcome, SwingConstants.CENTER);
         titleLabel.setFont(titleFont);
         titleLabel.setForeground(new Color(34,139,230));
@@ -34,7 +35,6 @@ public class DashboardAdmin extends JFrame {
 
         descriptionLabel = new JLabel(description, SwingConstants.CENTER);
         descriptionLabel.setFont(textFont);
-
         
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -47,111 +47,78 @@ public class DashboardAdmin extends JFrame {
         
        JPanel Main = (JPanel) this.getContentPane();
        Main.setLayout(new FlowLayout(FlowLayout.CENTER));
-        Main.add(mainPanel);
-        
-        JMenuBar mb = new JMenuBar();
-        JMenu book = new JMenu("Book");
-        JMenu member = new JMenu("Member");
-        JMenu notification  = new JMenu("Notification ");
-        JMenuItem addBook = new JMenuItem("Add Book");
-        JMenuItem Borrowed = new JMenuItem("Borrowed Book");
-        JMenuItem Search = new JMenuItem("Search Book");
-        JMenuItem Update = new JMenuItem("Update Book");
-        JMenuItem AddMember = new JMenuItem("Add Member");
-        JMenuItem UpdateMember = new JMenuItem("Update Member");
-        JMenuItem  Statistic = new JMenuItem("Statistics Report");
-        JMenuItem ExitOption = new JMenuItem("Log Out");
+       Main.add(mainPanel);
+       
+       JMenuBar mb = new JMenuBar();
+       JMenu book = new JMenu("Book");
+       JMenu notification  = new JMenu("Notification ");
+       JMenuItem ExitOption = new JMenuItem("Log Out");
+       JMenu content = new JMenu("=");
+       JMenuItem Profile = new JMenuItem("Profile");
+       JMenuItem Search = new JMenuItem("Search Book");
+       JMenuItem Borrowed = new JMenuItem("Borrowed Book");
+       JMenuItem Borrow = new JMenuItem("Borrow Book");
 
-        
+    
         setJMenuBar(mb);
+
+  
+        mb.add(content);
         mb.add(book);
-        mb.add(member);
         mb.add(notification ); 
         
-        book.add(addBook);
-        book.add(Borrowed);
         book.add(Search);
-        book.add(Update);
-        book.add(Statistic); 
-
-        member.add(AddMember);
-        member.add(UpdateMember);
-
+        book.add(Borrowed);
+        book.add(Borrow);
+        
         mb.add(Box.createHorizontalGlue());
         JPanel logoutPane = new JPanel(new FlowLayout(FlowLayout.RIGHT,0,0));
         logoutPane.setOpaque(false);
         logoutPane.add(ExitOption);
         mb.add(logoutPane);
-   
-
-        this.setVisible(true);
-
-        addBook.addActionListener(new addBookButton());
-        Borrowed.addActionListener(new Borrowed() );
-        Search.addActionListener(new searchBook());
-        Update.addActionListener(new updateBook());
-        AddMember.addActionListener(new addMember());
-        UpdateMember.addActionListener(new updateMember());
-        Statistic.addActionListener(new statisticReport());
-        ExitOption.addActionListener(new Logout());
-
-    }
-    
-    public class addBookButton implements ActionListener{
-    public void actionPerformed(ActionEvent e){
-        new addBook();
-        dispose();
-    
-    }}
-    
-    public class Borrowed implements ActionListener{
-    public void actionPerformed(ActionEvent e){
-    new BorrowedBook();
-            dispose();
-    }}
-    
-      public class searchBook implements ActionListener{
-    public void actionPerformed(ActionEvent e){
-    new BookSearch();
-            dispose();
-    }}
-      
-        public class updateBook implements ActionListener{
-    public void actionPerformed(ActionEvent e){
-     new BookInventory();
-            dispose();
-    }}
         
-    public class addMember implements ActionListener{
-    public void actionPerformed(ActionEvent e){
-            new NewMember();
+        content.add(Profile);
+
+        Profile.addActionListener(new profileUser());
+        Search.addActionListener(new SearchBookListener());
+        Borrowed.addActionListener(new ViewBorrowedBooksListener());
+        Borrow.addActionListener(new ReturnBookListener());
+        ExitOption.addActionListener(new Logout());
+        this.setVisible(true);
+    }
+
+     public class profileUser implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+           new UserProfile();
             dispose();
-
-
-    }}
-            
-    public class updateMember implements ActionListener{
-    public void actionPerformed(ActionEvent e){
-                new UpdateMember();
-                 dispose();
-
-
-    }}
-    
-    public class statisticReport implements ActionListener{
-    public void actionPerformed(ActionEvent e){
-            new ReportModule();
+        }
+    }
+    public class SearchBookListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+           new BookSearch();
             dispose();
+        }
+    }
 
-    }}
-    public class Logout implements ActionListener{
+    public class ViewBorrowedBooksListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+           new BorrowedTableBook();
+            dispose();
+        }}
+
+        
+    public class ReturnBookListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            new BooksTable();
+            dispose(); 
+        }
+    }
+   public class Logout implements ActionListener{
     public void actionPerformed(ActionEvent e){
          int n = JOptionPane.showConfirmDialog(null , "Do you Want Log out ?","Log Out",JOptionPane.YES_NO_OPTION);
             if(n==0)
             System.exit(0);
     
     }}
-   
-    
-}
 
+}
