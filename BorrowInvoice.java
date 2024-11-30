@@ -66,8 +66,8 @@ public class BorrowInvoice {
             // Load a default font (Times Roman)
             PdfFont font = PdfFontFactory.createFont(com.itextpdf.io.font.constants.StandardFonts.TIMES_ROMAN);
 
-            // Add a logo image to the PDF
-            String imagePath = "C:/Users/helah/Downloads/library_logo.png"; 
+            // Add a logo image to the PDF , Remove the commant and turn it to a valid statement if you download library_logo.png
+            /*String imagePath = "C:/Users/helah/Downloads/library_logo.png"; 
             File imageFile = new File(imagePath);
             if (imageFile.exists()) {
                 ImageData imageData = ImageDataFactory.create(imagePath);
@@ -78,7 +78,7 @@ public class BorrowInvoice {
                 document.add(logo); 
             } else {
                 JOptionPane.showMessageDialog(null, "Photo not found", "Photo Error", JOptionPane.ERROR_MESSAGE);
-            }
+            }*/
 
             // Parse the price to a double
             double price = Double.parseDouble(priceText);
