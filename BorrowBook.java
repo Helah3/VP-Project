@@ -246,7 +246,7 @@ public class BorrowBook extends JFrame {
             connection.close();
         } catch (SQLException ex) {
             System.out.println("SQL Error: " + ex.getMessage());
-            JOptionPane.showMessageDialog(null, "SQL Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "SQL Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();
         }
 
