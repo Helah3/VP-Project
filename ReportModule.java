@@ -1,54 +1,41 @@
-import javax.swing.*;
-import javax.swing.table.*;
+ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
 
 public class ReportModule extends JFrame {
-    private JComboBox reportType;
-    private JButton generateReportButton , backButton;
-    private JTable reportTable;
-    private DefaultTableModel tableModel;
+    private JComboBox<String> reportComboBox;
+    private JButton generateReportButton, backButton;
+    private JTextArea resultArea;
 
     public ReportModule() {
         setTitle("Library Reports");
-         this.setSize(1024, 576);
+        this.setSize(1024, 576);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocation(0,0);
 
-        Font fontButton = new Font("Arial", Font.PLAIN, 16); 
-        Font fontText = new Font("Segoe UI Variable Display Semib", Font.BOLD, 14);
-        JPanel panel = new JPanel();
-        panel.setLayout(new FlowLayout());
-
+        // Components
         JLabel reportLabel = new JLabel("Select Report Type:");
-        reportLabel.setFont(fontText);
-        
-        String [] list = {"Library Activity", "Popular Books", "Member Statistics"};
-        reportType = new JComboBox(list);
-        reportType.setFont(fontText);
-        
+        String[] reportOptions = {"Library Activity", "Popular Books", "Member Statistics"};
+        reportComboBox = new JComboBox<>(reportOptions);
         generateReportButton = new JButton("Generate Report");
-        generateReportButton.setFont(fontButton);
-        
         backButton = new JButton("Back");
-        backButton.setFont(fontButton);
+        resultArea = new JTextArea(20, 40);
+        resultArea.setEditable(false);
 
-        panel.add(reportLabel);
-        panel.add(reportType);
-        panel.add(generateReportButton);
-        panel.add(backButton);
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        topPanel.add(reportLabel);
+        topPanel.add(reportComboBox);
+        topPanel.add(generateReportButton);
 
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.add(backButton);
 
-        tableModel = new DefaultTableModel();
-        reportTable = new JTable(tableModel);
-         JTableHeader header = reportTable.getTableHeader();
-        header.setReorderingAllowed(false);
-        JScrollPane tableScrollPane = new JScrollPane(reportTable);
+        add(topPanel, BorderLayout.NORTH);
+        add(new JScrollPane(resultArea), BorderLayout.CENTER);
+        add(bottomPanel, BorderLayout.SOUTH);
 
-        add(panel, BorderLayout.NORTH);
-        add(tableScrollPane, BorderLayout.CENTER);
-
+         reportComboBox.addActionListener(e -> resultArea.setText("")); // Clear the result when selection changes
         generateReportButton.addActionListener(new GenerateReportAction());
         backButton.addActionListener(new BackToDashboard());
 
@@ -57,105 +44,124 @@ public class ReportModule extends JFrame {
 
     private class GenerateReportAction implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            String selectedReport = (String) reportType.getSelectedItem();
-            switch (selectedReport) {
-                case "Library Activity":
-                    generateLibraryActivityReport();
-                    break;
-                case "Popular Books":
-                    generatePopularBooksReport();
-                    break;
-                case "Member Statistics":
-                    generateMemberStatisticsReport();
-                    break;
+            String selectedReport = (String) reportComboBox.getSelectedItem();
+            resultArea.setText(""); // Clear previous results
+
+            if (selectedReport != null) {
+                switch (selectedReport) {
+                    case "Library Activity":
+                        generateLibraryActivityReport();
+                        break;
+                    case "Popular Books":
+                        generatePopularBooksReport();
+                        break;
+                    case "Member Statistics":
+                        generateMemberStatisticsReport();
+                        break;
+                }
             }
         }
     }
 
     private void generateLibraryActivityReport() {
-        
-        tableModel.setColumnIdentifiers(new String[]{"User ID", "Book ID", "Borrow Date", "Return Date"});
-        tableModel.setRowCount(0);
-String query = "SELECT u.UserName, b.BookID, b.BorrowDate, b.ReturnDate " +
-               "FROM Borrowings b " +
-               "JOIN Users u ON b.UserID = u.UserID";
-        try { 
-          Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+        String query = "SELECT u.UserName, bk.Title, b.BorrowDate, b.ReturnDate " +
+                       "FROM Borrowings b " +
+                       "JOIN Users u ON b.UserID = u.UserID " +
+                       "JOIN Books bk ON b.BookID = bk.BookID";
+
+        try (Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
              PreparedStatement stmt = c.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery();
+             ResultSet rs = stmt.executeQuery()) {
+
+            StringBuilder report = new StringBuilder("Library Activity Report:\n\n");
+            int totalBooksBorrowed = 0;
 
             while (rs.next()) {
-                tableModel.addRow(new Object[]{
-                        rs.getString("UserName"),
-                        rs.getInt("BookID"),
-                        rs.getDate("BorrowDate"),
-                        rs.getDate("ReturnDate")
-                });
+                report.append("User Name: ").append(rs.getString("UserName")).append("\n")
+                      .append("Book Title: ").append(rs.getString("Title")).append("\n")
+                      .append("Borrow Date: ").append(rs.getDate("BorrowDate")).append("\n")
+                      .append("Return Date: ").append(rs.getDate("ReturnDate")).append("\n\n");
+                totalBooksBorrowed++;
             }
+
+            report.append("Total Books Borrowed: ").append(totalBooksBorrowed);
+            resultArea.setText(report.toString());
+
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            resultArea.setText("Error fetching Library Activity Report.\n" + ex.getMessage());
         }
     }
 
     private void generatePopularBooksReport() {
-
-        tableModel.setColumnIdentifiers(new String[]{"Book Title", "Borrow Count"});
-        tableModel.setRowCount(0);
-
-        String query = "SELECT b.Title, COUNT(br.BookID) AS BorrowCount " +
-                       "FROM Books b " +
-                       "JOIN Borrowings br ON b.BookID = br.BookID " +
-                       "GROUP BY b.Title " +
+        String query = "SELECT bk.Title, COUNT(br.BookID) AS BorrowCount " +
+                       "FROM Books bk " +
+                       "JOIN Borrowings br ON bk.BookID = br.BookID " +
+                       "GROUP BY bk.Title " +
                        "ORDER BY BorrowCount DESC";
 
-        try {
-          Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+        try (Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
              PreparedStatement stmt = c.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery();
+             ResultSet rs = stmt.executeQuery()) {
+
+            StringBuilder report = new StringBuilder("Popular Books Report:\n\n");
+            int totalBorrows = 0;
+            boolean firstBook = true;
 
             while (rs.next()) {
-                tableModel.addRow(new Object[]{
-                        rs.getString("Title"),
-                        rs.getInt("BorrowCount")
-                });
+                if (firstBook) {
+                    report.append("Most Borrowed Book:\n")
+                          .append("Book Title: ").append(rs.getString("Title")).append("\n")
+                          .append("Borrow Count: ").append(rs.getInt("BorrowCount")).append("\n\n");
+                    firstBook = false;
+                } else {
+                    report.append("Book Title: ").append(rs.getString("Title")).append("\n")
+                          .append("Borrow Count: ").append(rs.getInt("BorrowCount")).append("\n\n");
+                }
+                totalBorrows += rs.getInt("BorrowCount");
             }
+
+            report.append("Total Borrow Count: ").append(totalBorrows);
+            resultArea.setText(report.toString());
+
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            resultArea.setText("Error fetching Popular Books Report.\n" + ex.getMessage());
         }
     }
 
     private void generateMemberStatisticsReport() {
-        tableModel.setColumnIdentifiers(new String[]{"User Name", "Borrow Count"});
-        tableModel.setRowCount(0);
-
         String query = "SELECT u.UserName, COUNT(br.UserID) AS BorrowCount " +
                        "FROM Users u " +
                        "JOIN Borrowings br ON u.UserID = br.UserID " +
                        "GROUP BY u.UserName " +
                        "ORDER BY BorrowCount DESC";
 
-        try {
-          Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+        try (Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
              PreparedStatement stmt = c.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery();
+             ResultSet rs = stmt.executeQuery()) {
+
+            StringBuilder report = new StringBuilder("Member Statistics Report:\n\n");
+            int totalMembers = 0;
 
             while (rs.next()) {
-                tableModel.addRow(new Object[]{
-                        rs.getString("UserName"),
-                        rs.getInt("BorrowCount")
-                });
+                report.append("User Name: ").append(rs.getString("UserName")).append("\n")
+                      .append("Borrow Count: ").append(rs.getInt("BorrowCount")).append("\n\n");
+                totalMembers++;
             }
+
+            report.append("Total Members Borrowed: ").append(totalMembers);
+            resultArea.setText(report.toString());
+
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            resultArea.setText("Error fetching Member Statistics Report.\n" + ex.getMessage());
         }
     }
-    
-     public class BackToDashboard implements ActionListener {
+
+    private class BackToDashboard implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            new DashboardAdmin();
+            new DashboardAdmin(); 
             dispose();
         }
     }
- 
+
 
 }
