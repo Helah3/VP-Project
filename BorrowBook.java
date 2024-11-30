@@ -5,9 +5,11 @@ import javax.swing.border.EmptyBorder;
 import com.toedter.calendar.JDateChooser;
 import java.sql.*;
 import java.text.SimpleDateFormat;
+import javax.swing.border.TitledBorder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.border.TitledBorder;
+import java.io.File;
+import java.util.Random;
 
 public class BorrowBook extends JFrame {
 
@@ -143,6 +145,7 @@ public class BorrowBook extends JFrame {
                 int id = User.getUserID();
                 
                 if (BorrowBookQuery(id ,bookID , sqlDate ,sqlDate2 )) {
+                    Invoice();
                     JOptionPane.showMessageDialog(null, "Borrow Book Successful", "Successful", JOptionPane.INFORMATION_MESSAGE);
                         new BooksTable();
                            dispose();
@@ -197,6 +200,59 @@ public class BorrowBook extends JFrame {
     }
     return false;
 }
+    
+   public void Invoice() {
+        Connection connection = DatabaseConnection();
+        if (connection == null) {
+            System.out.println("Connection is null!");
+            return;
+        }
+        String query = "SELECT "
+                + "Books.Title AS Title, "
+                + "Users.UserName AS UserName ,"
+                + "Borrowings.BorrowDate AS BorrowDate, "
+                + "Borrowings.ReturnDate AS ReturnDate "
+                + "FROM Borrowings "
+                + "JOIN Books ON Borrowings.BookID = Books.BookID "
+                + "JOIN Users ON Borrowings.UserID = Users.UserID";
+
+        try {
+
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            
+            Random random = new Random();
+            int BorrowNumber = 100000 + random.nextInt(900000); // Create BorrowBumber (like BorrowID but this for the Invoice)
+            
+            String BorrowNumberText = "" + BorrowNumber;
+            String BookName = "";
+            String MemberName = "";
+            String bDate = "";
+            String rDate = "";
+            
+            BorrowInvoice e;
+            
+            while (rs.next()) {
+                BookName = rs.getString("Title");
+                MemberName = rs.getString("UserName");
+                bDate = rs.getString("BorrowDate");
+                rDate = rs.getString("ReturnDate");
+
+            }
+
+            e = new BorrowInvoice("#"+BorrowNumberText, BookName, MemberName, bDate, rDate); // Start the createtion of the Invoice 
+            rs.close();
+            stmt.close();
+            connection.close();
+        } catch (SQLException ex) {
+            System.out.println("SQL Error: " + ex.getMessage());
+            JOptionPane.showMessageDialog(null, "SQL Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
+        }
+
+        
+    }
+    
    public class EmptyException extends Exception {
         public EmptyException(String msg) {
             super(msg);
