@@ -2,6 +2,7 @@
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
+import java.sql.*;
 
 public class DashboardAdmin extends JFrame {
     
@@ -102,6 +103,53 @@ public class DashboardAdmin extends JFrame {
 
     }
     
+private Connection getConnection() throws SQLException {
+String url = "jdbc:ucanaccess://C:/Users/helah/Downloads/LibraryDB (1).accdb";
+        return DriverManager.getConnection(url);
+    }
+
+    // Load Notifications from Database
+    private void loadNotifications() {
+        notificationArea.setText(""); // Clear existing notifications
+
+        try (Connection conn = getConnection()) {
+            // Overdue Books
+            String overdueQuery = "SELECT u.UserName, b.Title, br.ReturnDate FROM Borrowings br " +
+                                  "JOIN Books b ON br.BookID = b.BookID " +
+                                  "JOIN Users u ON br.UserID = u.UserID " +
+                                  "WHERE br.ReturnDate < DATE() AND br.IsReturned = FALSE";
+            try (PreparedStatement stmt = conn.prepareStatement(overdueQuery);
+                 ResultSet rs = stmt.executeQuery()) {
+
+                notificationArea.append("Overdue Books:\n");
+                while (rs.next()) {
+                    notificationArea.append("User: " + rs.getString("UserName") +
+                            ", Book: " + rs.getString("Title") +
+                            ", Due Date: " + rs.getDate("ReturnDate") + "\n");
+                }
+            }
+
+            // New Borrowings Today
+            String newBorrowQuery = "SELECT u.UserName, b.Title, br.BorrowDate FROM Borrowings br " +
+                                    "JOIN Books b ON br.BookID = b.BookID " +
+                                    "JOIN Users u ON br.UserID = u.UserID " +
+                                    "WHERE br.BorrowDate = DATE()";
+            try (PreparedStatement stmt = conn.prepareStatement(newBorrowQuery);
+                 ResultSet rs = stmt.executeQuery()) {
+
+                notificationArea.append("\nNew Borrowings Today:\n");
+                while (rs.next()) {
+                    notificationArea.append("User: " + rs.getString("UserName") +
+                            ", Book: " + rs.getString("Title") +
+                            ", Borrow Date: " + rs.getDate("BorrowDate") + "\n");
+                }
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading notifications: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+ 
      public class profileUser implements ActionListener {
         public void actionPerformed(ActionEvent e) {
            new UserProfile();
