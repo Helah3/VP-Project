@@ -77,7 +77,7 @@ public class BookInventory extends JFrame {
     // Establish a connection to the database
     private static Connection DatabaseConnection() {
         try {
-Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/helah/Downloads/LibraryDB (1).accdb");
             System.out.println("Database connected successfully!");
             return connection;
         } catch (SQLException e) {
@@ -178,9 +178,32 @@ Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/
             Connection connection = DatabaseConnection();
             if (connection == null) return false;
 
+            String query = "SELECT COUNT(*) as borrowCount FROM Borrowings b " +
+                                "INNER JOIN Books bk ON b.BookID = bk.BookID " +
+                                "WHERE bk.Title = ? AND bk.Avaliable IS FALSE";
+    
+            try {
+                PreparedStatement checkStmt = connection.prepareStatement(query);
+                checkStmt.setString(1, bookTitle);
+                ResultSet rs = checkStmt.executeQuery();
+                
+                if (rs.next() && rs.getInt("borrowCount") > 0) {
+                    JOptionPane.showMessageDialog(null, 
+                        "The Book is currently being borrowed and cannot be deleted", 
+                        "Delete Error", JOptionPane.ERROR_MESSAGE);
+                    rs.close();
+                    checkStmt.close();
+                    connection.close();
+                    return false;
+                }
+                
+            rs.close();
+            checkStmt.close();
             String deleteQuery = "DELETE FROM Books WHERE Title = ?";
+            PreparedStatement pstmt = connection.prepareStatement(deleteQuery);
 
-            try (PreparedStatement pstmt = connection.prepareStatement(deleteQuery)) {
+
+           
                 pstmt.setString(1, bookTitle);
 
                 int rowsAffected = pstmt.executeUpdate();
@@ -253,3 +276,5 @@ Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/
         }
 
 }}
+
+
