@@ -4,6 +4,8 @@ import java.awt.event.*;
 import javax.swing.border.TitledBorder;
 import java.sql.*;
 import javax.swing.border.EmptyBorder;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class DashboardUser extends JFrame {
 
@@ -87,6 +89,61 @@ public class DashboardUser extends JFrame {
         this.setVisible(true);
     }
 
+     // Load Notifications from Database
+    private void loadNotifications() {
+        NotifyUser.clearNotifications(); // Clear existing notifications
+
+        try (Connection conn = getConnection()) {
+            // Notifications for reminders (books due within the next 3 days)
+            String reminderQuery = "SELECT b.Title, br.ReturnDate FROM Borrowings br "
+                    + "JOIN Books b ON br.BookID = b.BookID "
+                    + "WHERE br.ReturnDate BETWEEN DATE() AND DATE() + 3 AND br.IsReturned = FALSE";
+            try (PreparedStatement stmt = conn.prepareStatement(reminderQuery);
+                 ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String title = rs.getString("Title");
+                    String returnDate = rs.getDate("ReturnDate").toString();
+                    NotifyUser.addNotification("Return Reminder: " + title + " is due on " + returnDate, "Reminder");
+                }
+            }
+
+            // Notifications for overdue books
+            String overdueQuery = "SELECT b.Title, br.ReturnDate FROM Borrowings br "
+                    + "JOIN Books b ON br.BookID = b.BookID "
+                    + "WHERE br.ReturnDate < DATE() AND br.IsReturned = FALSE";
+            try (PreparedStatement stmt = conn.prepareStatement(overdueQuery);
+                 ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String title = rs.getString("Title");
+                    String overdueDate = rs.getDate("ReturnDate").toString();
+                    NotifyUser.addNotification("Overdue: " + title + " was due on " + overdueDate, "Overdue");
+                }
+            }
+
+            // Notifications for new borrowings
+            String newBorrowQuery = "SELECT b.Title, br.BorrowDate, br.ReturnDate FROM Borrowings br "
+                    + "JOIN Books b ON br.BookID = b.BookID "
+                    + "WHERE br.BorrowDate = DATE()";
+            try (PreparedStatement stmt = conn.prepareStatement(newBorrowQuery);
+                 ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String title = rs.getString("Title");
+                    String borrowDate = rs.getDate("BorrowDate").toString();
+                    String returnDate = rs.getDate("ReturnDate").toString();
+                    NotifyUser.addNotification("New Borrow: " + title + " (from " + borrowDate + " to " + returnDate + ")", "New Borrow");
+                }
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading notifications: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+     // Establish a database connection
+    private Connection getConnection() throws SQLException {
+        String url = "jdbc:ucanaccess://C:/Users/helah/Downloads/LibraryDB (1).accdb";
+        return DriverManager.getConnection(url);
+    }
+    
      public class profileUser implements ActionListener {
         public void actionPerformed(ActionEvent e) {
            new UserProfile();
