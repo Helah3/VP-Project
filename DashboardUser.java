@@ -121,4 +121,45 @@ public class DashboardUser extends JFrame {
     
     }}
 
+    // Notification System
+    public static class NotifyUser {
+
+        private static final JPanel notificationPanel = new JPanel();
+        private static final Queue<String> notificationQueue = new LinkedList<>();
+
+        public static void initializeNotificationPanel(JFrame frame) {
+            notificationPanel.setLayout(new BoxLayout(notificationPanel, BoxLayout.Y_AXIS));
+            notificationPanel.setBackground(Color.LIGHT_GRAY);
+            notificationPanel.setPreferredSize(new Dimension(300, frame.getHeight()));
+            notificationPanel.setBorder(BorderFactory.createTitledBorder("Notifications"));
+
+            JScrollPane scrollPane = new JScrollPane(notificationPanel);
+            scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            frame.add(scrollPane, BorderLayout.EAST);
+        }
+
+        public static void addNotification(String message, String title) {
+            notificationQueue.add("<html><b>" + title + ":</b> " + message + "</html>");
+            updateNotificationPanel();
+        }
+
+        public static void updateNotificationPanel() {
+            notificationPanel.removeAll();
+            for (String notification : notificationQueue) {
+                JLabel label = new JLabel(notification);
+                label.setFont(new Font("Arial", Font.PLAIN, 14));
+                label.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+                notificationPanel.add(label);
+            }
+            notificationPanel.revalidate();
+            notificationPanel.repaint();
+        }
+
+        public static void clearNotifications() {
+            notificationQueue.clear();
+            updateNotificationPanel();
+        }
+    }
+
+
 }
