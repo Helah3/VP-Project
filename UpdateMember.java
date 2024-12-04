@@ -1,3 +1,4 @@
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -137,14 +138,14 @@ public class UpdateMember extends JFrame {
         public void actionPerformed(ActionEvent e) {
             try {
                 if (textUserID.getText().equals("")) {
-                    throw new EmptyFieldsException("User ID is required!");
+                    throw new CustomExceptions.EmptyFieldsException("User ID is required!");
                 }
 
                 int userID = Integer.parseInt(textUserID.getText());
                 loadUserData(userID); 
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(null, "User ID must be a valid number!", "Invalid Input", JOptionPane.ERROR_MESSAGE);
-            } catch (EmptyFieldsException ex) {
+            } catch (CustomExceptions.EmptyFieldsException ex) {
                 JOptionPane.showMessageDialog(null, ex.getMessage(), "Empty Fields", JOptionPane.WARNING_MESSAGE);
             }
         }
@@ -157,7 +158,7 @@ public class UpdateMember extends JFrame {
                         datePublishedText.getDate() == null || textEmail.getText().equals("") ||
                         (!radioMale.isSelected() && !radioFemale.isSelected()) ||
                         (!radioAdmin.isSelected() && !radioMember.isSelected())) {
-                    throw new EmptyFieldsException("All fields are required!");
+                    throw new CustomExceptions.EmptyFieldsException("All fields are required!");
                 }
 
                 String userName = textUserName.getText();
@@ -173,11 +174,11 @@ public class UpdateMember extends JFrame {
                 if (updateUser(userID, userName, email, password, role, gender, dob)) {
                     JOptionPane.showMessageDialog(null, "Member updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    throw new DatabaseException("Failed to update member. Please try again.");
+                    throw new CustomExceptions.DatabaseException("Failed to update member. Please try again.");
                 }
-            } catch (EmptyFieldsException ex) {
+            } catch (CustomExceptions.EmptyFieldsException ex) {
                 JOptionPane.showMessageDialog(null, ex.getMessage(), "Empty Fields", JOptionPane.WARNING_MESSAGE);
-            } catch (DatabaseException ex) {
+            } catch (CustomExceptions.DatabaseException ex) {
                 JOptionPane.showMessageDialog(null, ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             }
         }
@@ -192,7 +193,7 @@ public class UpdateMember extends JFrame {
 
     public void loadUserData(int userID) {
         String query = "SELECT * FROM Users WHERE UserID = ?";
-        try (Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+        try (Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/baato/Downloads/LibraryDB.accdb");
              PreparedStatement stmt = c.prepareStatement(query)) {
 
             stmt.setInt(1, userID);
@@ -225,11 +226,11 @@ public class UpdateMember extends JFrame {
 
     public boolean updateUser(int userID, String userName, String email, String password, String role, String gender, java.sql.Date dob) {
         String query = "UPDATE Users SET UserName = ?, Email = ?, Password = ?, Role = ?, Gender = ?, DateOfBitrthd = ? WHERE UserID = ?";
-        try (Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+        try (Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/baato/Downloads/LibraryDB.accdb");
              PreparedStatement stmt = c.prepareStatement(query)) {
 
             stmt.setString(1, userName);
-            stmt.setString(2, email);
+            stmt.setString(2, email);            
             stmt.setString(3, password);
             stmt.setString(4, role);
             stmt.setString(5, gender);
@@ -247,16 +248,5 @@ public class UpdateMember extends JFrame {
         return false;
     }
 
-    public class EmptyFieldsException extends Exception {
-        public EmptyFieldsException(String message) {
-            super(message);
-        }
-    }
 
-    
-    public class DatabaseException extends Exception {
-        public DatabaseException(String message) {
-            super(message);
-        }
-    }
    }
