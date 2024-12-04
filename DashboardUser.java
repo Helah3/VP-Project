@@ -1,4 +1,4 @@
-import javax.swing.*;
+  import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
@@ -13,27 +13,29 @@ public class DashboardUser extends JFrame {
         this.setTitle("User Dashboard");
         this.setSize(1024, 576);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setLocationRelativeTo(null); // Center the window
+        this.setLocation(0, 0);
 
         // Set fonts
         Font titleFont = new Font("Arial", Font.BOLD, 24);
         Font textFont = new Font("Arial", Font.PLAIN, 16);
 
-        // Title Label
-        String welcome = "Welcome to Online Library Management System";
-        titleLabel = new JLabel(welcome, SwingConstants.CENTER);
-        titleLabel.setFont(titleFont);
-        titleLabel.setForeground(new Color(34, 139, 230));
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
+                // Title Label
+         String welcome = "<html><div style='text-align: center;'>" +
+                 "Welcome to Online Library Management System" +
+                 "</div></html>";
+         titleLabel = new JLabel(welcome, SwingConstants.CENTER);
+         titleLabel.setFont(titleFont);
+         titleLabel.setForeground(new Color(34, 139, 230));
+         titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
 
-        // Description Label
-        String description = "<html><div style='text-align: center;'>"
-                + "Welcome to <b>Online Library Management System</b>, where you can manage<br>"
-                + "your borrowed books, check availability, and stay notified about your borrowings.<br><br>"
-                + "Enjoy a user-friendly interface tailored to enhance your library experience."
-                + "</div></html>";
-        descriptionLabel = new JLabel(description, SwingConstants.CENTER);
-        descriptionLabel.setFont(textFont);
+         // Description Label
+         String description = "<html><div style='text-align: center; margin: 10px;'>" +
+                 "Welcome to <b>Online Library Management System</b>, where you can manage your<br>" +
+                 "borrowed books, check availability, and stay notified about your borrowings.<br><br>" +
+                 "Enjoy a user-friendly interface tailored to enhance your library experience." +
+                 "</div></html>";
+         descriptionLabel = new JLabel(description, SwingConstants.CENTER);
+         descriptionLabel.setFont(textFont);
 
         // Main Panel
         JPanel mainPanel = new JPanel();
@@ -56,7 +58,6 @@ public class DashboardUser extends JFrame {
         // Menu Bar Setup
         JMenuBar mb = new JMenuBar();
         JMenu bookMenu = new JMenu("Book");
-        JMenu notificationMenu = new JMenu("Notification");
         JMenuItem exitOption = new JMenuItem("Log Out");
         JMenu contentMenu = new JMenu("=");
 
@@ -69,7 +70,6 @@ public class DashboardUser extends JFrame {
         setJMenuBar(mb);
         mb.add(contentMenu);
         mb.add(bookMenu);
-        mb.add(notificationMenu);
 
         // Add menu items
         bookMenu.add(searchMenuItem);
@@ -77,13 +77,11 @@ public class DashboardUser extends JFrame {
         bookMenu.add(borrowMenuItem);
 
         contentMenu.add(profileMenuItem);
+        contentMenu.add(new JSeparator(JSeparator.HORIZONTAL));
+        contentMenu.add(exitOption);
 
-        // Add logout to the far right
-        mb.add(Box.createHorizontalGlue());
-        JPanel logoutPane = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        logoutPane.setOpaque(false);
-        logoutPane.add(exitOption);
-        mb.add(logoutPane);
+
+        
 
         // Action Listeners
         profileMenuItem.addActionListener(new ProfileUserListener());
@@ -96,42 +94,49 @@ public class DashboardUser extends JFrame {
     }
 
     // Load Notifications from Database
-    private void loadNotifications() {
-        NotifyUser.clearNotifications(); // Clear existing notifications
+private void loadNotifications() {
+    NotifyUser.clearNotifications(); // Clear existing notifications
 
-        try (Connection conn = getConnection()) {
-            // Notifications for reminders (books due within the next 3 days)
-            String reminderQuery = "SELECT b.Title, br.ReturnDate FROM Borrowings br "
-                    + "JOIN Books b ON br.BookID = b.BookID "
-                    + "WHERE br.ReturnDate BETWEEN DATE() AND DATE() + 3 AND br.IsReturned = FALSE";
-            try (PreparedStatement stmt = conn.prepareStatement(reminderQuery);
-                 ResultSet rs = stmt.executeQuery()) {
+    int userID = User.getUserID(); // Get the logged-in user's ID
+
+    try (Connection conn = getConnection()) {
+        // Notifications for reminders (books due within the next 3 days)
+        String reminderQuery = "SELECT b.Title, br.ReturnDate FROM Borrowings br "
+                + "JOIN Books b ON br.BookID = b.BookID "
+                + "WHERE br.UserID = ? AND br.ReturnDate BETWEEN DATE() AND DATE() + 3 AND br.IsReturned = FALSE";
+        try (PreparedStatement stmt = conn.prepareStatement(reminderQuery)) {
+            stmt.setInt(1, userID);
+            try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     String title = rs.getString("Title");
                     String returnDate = rs.getDate("ReturnDate").toString();
                     NotifyUser.addNotification("Return Reminder: " + title + " is due on " + returnDate, "Reminder");
                 }
             }
+        }
 
-            // Notifications for overdue books
-            String overdueQuery = "SELECT b.Title, br.ReturnDate FROM Borrowings br "
-                    + "JOIN Books b ON br.BookID = b.BookID "
-                    + "WHERE br.ReturnDate < DATE() AND br.IsReturned = FALSE";
-            try (PreparedStatement stmt = conn.prepareStatement(overdueQuery);
-                 ResultSet rs = stmt.executeQuery()) {
+        // Notifications for overdue books
+        String overdueQuery = "SELECT b.Title, br.ReturnDate FROM Borrowings br "
+                + "JOIN Books b ON br.BookID = b.BookID "
+                + "WHERE br.UserID = ? AND br.ReturnDate < DATE() AND br.IsReturned = FALSE";
+        try (PreparedStatement stmt = conn.prepareStatement(overdueQuery)) {
+            stmt.setInt(1, userID);
+            try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     String title = rs.getString("Title");
                     String overdueDate = rs.getDate("ReturnDate").toString();
                     NotifyUser.addNotification("Overdue: " + title + " was due on " + overdueDate, "Overdue");
                 }
             }
+        }
 
-            // Notifications for new borrowings
-            String newBorrowQuery = "SELECT b.Title, br.BorrowDate, br.ReturnDate FROM Borrowings br "
-                    + "JOIN Books b ON br.BookID = b.BookID "
-                    + "WHERE br.BorrowDate = DATE()";
-            try (PreparedStatement stmt = conn.prepareStatement(newBorrowQuery);
-                 ResultSet rs = stmt.executeQuery()) {
+        // Notifications for new borrowings
+        String newBorrowQuery = "SELECT b.Title, br.BorrowDate, br.ReturnDate FROM Borrowings br "
+                + "JOIN Books b ON br.BookID = b.BookID "
+                + "WHERE br.UserID = ? AND br.BorrowDate = DATE()";
+        try (PreparedStatement stmt = conn.prepareStatement(newBorrowQuery)) {
+            stmt.setInt(1, userID);
+            try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     String title = rs.getString("Title");
                     String borrowDate = rs.getDate("BorrowDate").toString();
@@ -139,14 +144,15 @@ public class DashboardUser extends JFrame {
                     NotifyUser.addNotification("New Borrow: " + title + " (from " + borrowDate + " to " + returnDate + ")", "New Borrow");
                 }
             }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error loading notifications: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Error loading notifications: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
+}
 
     // Establish a database connection
     private Connection getConnection() throws SQLException {
-        String url = "jdbc:ucanaccess://C:/Users/helah/Downloads/LibraryDB (1).accdb";
+        String url = "jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb";
         return DriverManager.getConnection(url);
     }
 
