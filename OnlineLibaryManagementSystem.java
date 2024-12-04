@@ -120,9 +120,9 @@ public class OnlineLibaryManagementSystem extends JFrame {
         public void actionPerformed(ActionEvent e){
             try{
            if(userNameTextField.getText().equals(""))
-               throw new EmptyException("User Name is Empty , Please Enter User Name");
+               throw new CustomExceptions.EmptyException("User Name is Empty , Please Enter User Name");
             if(passwordTextField.getText().equals(""))
-                throw new EmptyException("Password is Empty , Please Enter Password");
+                throw new CustomExceptions.EmptyException("Password is Empty , Please Enter Password");
             
             String uName = userNameTextField.getText();
             String password = new String(passwordTextField.getPassword());
@@ -130,7 +130,7 @@ public class OnlineLibaryManagementSystem extends JFrame {
             User.setUserID(id);
             String role = authenticate(uName ,password );
             if(role == null)
-                   throw new ErrorLogin("Login unsuccessful , Check your information");
+                   throw new CustomExceptions.ErrorLogin("Login unsuccessful , Check your information");
             else if(role.equals("Admin")){
                  JOptionPane.showMessageDialog(null , "Welcome Admin ! ","Login successful",JOptionPane.INFORMATION_MESSAGE);
                     new DashboardAdmin();
@@ -143,28 +143,15 @@ public class OnlineLibaryManagementSystem extends JFrame {
             }
                dispose();
 
-            }catch(EmptyException e2){
+            }catch(CustomExceptions.EmptyException e2){
                JOptionPane.showMessageDialog(null , e2.getMessage(),"Empty text",JOptionPane.WARNING_MESSAGE);
-            }catch(ErrorLogin e2){
+            }catch(CustomExceptions.ErrorLogin e2){
                JOptionPane.showMessageDialog(null , e2.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
             }
         }
         
     }
 
-     
-    public class EmptyException extends Exception{
-        public EmptyException(String msg){
-            super(msg);
-        }
-    }
-    
-     public class ErrorLogin extends Exception{
-        public ErrorLogin(String msg){
-            super(msg);
-        }
-    }
- 
     
     public String authenticate(String Uname , String password){
         String role = null ;
@@ -220,3 +207,4 @@ public class OnlineLibaryManagementSystem extends JFrame {
 
     }
 }
+
