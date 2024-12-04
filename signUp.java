@@ -1,3 +1,4 @@
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -146,7 +147,7 @@ public class signUp extends JFrame {
                     datePublishedText.getDate() == null || textEmail.getText().equals("") ||
                    (!radioMale.isSelected() && !radioFemale.isSelected()))
                      {
-                throw new EmptyFieldsException("All fields are required!");
+                throw new CustomExceptions.EmptyFieldsException("All fields are required!");
             }
 
             String UserName = textUserName.getText();
@@ -183,11 +184,11 @@ public class signUp extends JFrame {
                       new DashboardUser();
 
             } else {
-                throw new DatabaseException("Failed to add member. Try again.");
+                throw new CustomExceptions.DatabaseException("Failed to add member. Try again.");
             }
-        } catch (EmptyFieldsException ex) {
+        } catch (CustomExceptions.EmptyFieldsException ex) {
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Input Error", JOptionPane.WARNING_MESSAGE);
-        } catch (DatabaseException ex) {
+        } catch (CustomExceptions.DatabaseException ex) {
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -202,7 +203,7 @@ public class signUp extends JFrame {
     public boolean addNewMember(String UserName, String Email, String Password  , String Gender ,java.sql.Date DateOfBitrthd  ) {
         String query = "INSERT INTO Users (UserName, Email, Password, Role, Gender, DateOfBitrthd) VALUES (?, ?, ?, ?, ?, ?)";
         try {
-          Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+          Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/baato/Downloads/LibraryDB.accdb");
             PreparedStatement stmt = c.prepareStatement(query);
 
             stmt.setString(1, UserName);
@@ -221,16 +222,7 @@ public class signUp extends JFrame {
         return false;
     }
 
-    public class EmptyFieldsException extends Exception {
-        public EmptyFieldsException(String message) {
-            super(message);
-        }
-    }
-
-    public class DatabaseException extends Exception {
-        public DatabaseException(String message) {
-            super(message);
-        }
-    }
+    
    
 }
+
