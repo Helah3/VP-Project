@@ -1,3 +1,4 @@
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -129,7 +130,7 @@ public class ReturnBook extends JFrame {
         public void actionPerformed(ActionEvent e) {
             try {
                 if (dateBorrowText.getDate() == null || dateReturnText.getDate() == null) {
-                    throw new EmptyException("Information Not completed!\nPlease Enter all Information");
+                    throw new CustomExceptions.EmptyException("Information Not completed!\nPlease Enter all Information");
                 }
 
 
@@ -147,11 +148,11 @@ public class ReturnBook extends JFrame {
                         new BooksTable();
                            dispose();
                 } else {
-                    throw new ErrorAdd("Borrow Book unsuccessful");
+                    throw new CustomExceptions.ErrorAdd("Borrow Book unsuccessful");
                 }
-            } catch (EmptyException e2) {
+            } catch (CustomExceptions.EmptyException e2) {
                 JOptionPane.showMessageDialog(null, e2.getMessage(), "Information Not Completed", JOptionPane.WARNING_MESSAGE);
-            } catch (ErrorAdd e2) {
+            } catch (CustomExceptions.ErrorAdd e2) {
                 JOptionPane.showMessageDialog(null, e2.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
@@ -197,19 +198,10 @@ public class ReturnBook extends JFrame {
     }
     return false;
 }
-   public class EmptyException extends Exception {
-        public EmptyException(String msg) {
-            super(msg);
-        }
-    }
-     public class ErrorAdd extends Exception {
-        public ErrorAdd(String msg) {
-            super(msg);
-        }
-    }
+  
        private static Connection DatabaseConnection() {
         try {
-        Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+        Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/baato/Downloads/LibraryDB.accdb");
             System.out.println("Database connected successfully!");
             return connection;
         } catch (SQLException e) {
