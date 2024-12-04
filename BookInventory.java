@@ -1,4 +1,3 @@
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -207,7 +206,7 @@ Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/
                 JOptionPane.showMessageDialog(BookInventory.this, "Please select a book to delete", "Delete Book", HEIGHT);
             }
         }
-
+  
         // Delete the selected book from the database
         private boolean deleteFromDatabase(String bookTitle) {
             Connection connection = DatabaseConnection();
@@ -387,7 +386,7 @@ try (Connection conn = DatabaseConnection();
 
             
             if (!rs.isBeforeFirst()) {
-                   throw new NoresultException("No results found for the selected filters ");
+                   throw new  CustomExceptions.NoresultException("No results found for the selected filters ");
             } else {
                 while (rs.next()) {
                     String No = "" + rowNumber;
@@ -412,14 +411,10 @@ try (Connection conn = DatabaseConnection();
             JOptionPane.showMessageDialog(null, "SQL error occurred: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } catch (ParseException ex) {
             System.out.println("Error in parsing Date\n");
-        }catch(NoresultException e2){
+        }catch( CustomExceptions.NoresultException e2 ){
                JOptionPane.showMessageDialog(null , e2.getMessage(),"No Results",JOptionPane.WARNING_MESSAGE);
             }
     }
 }
-    public class NoresultException extends Exception{
-        public NoresultException(String msg){
-            super(msg);
-        }
-    } 
+  
 }
