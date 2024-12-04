@@ -170,8 +170,8 @@ public class OnlineLibaryManagementSystem extends JFrame {
         String role = null ;
         String query = "SELECT Role FROM Users WHERE UserName = ? AND Password = ? ";
         try{
-            // هنا يتغير المسار حسب وين مكان حفظك لقاعدة البيانات
-          Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+            
+            Connection c = DatabaseConnection();
           PreparedStatement stmt = c.prepareStatement(query);
           stmt.setString(1, Uname);
           stmt.setString(2,password);
@@ -184,10 +184,21 @@ public class OnlineLibaryManagementSystem extends JFrame {
         return role ;
     }
     
+     private static Connection DatabaseConnection() {
+        try {                                                    
+            Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+            System.out.println("Database connected successfully!");
+            return connection;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Failed to connect to the database", "Database Error", JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+    }
     public int getIDOfUser(String username, String password) {
     String query = "SELECT UserID FROM Users WHERE Username = ? AND Password = ?";
     try{
-        Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+        Connection c = DatabaseConnection();
          PreparedStatement stmt = c.prepareStatement(query);
 
         stmt.setString(1, username);
