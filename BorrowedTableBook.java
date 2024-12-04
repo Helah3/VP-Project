@@ -122,7 +122,7 @@ public class BorrowedTableBook extends JFrame {
           // Get the BookID and BorrowID from the selected row
           int bookID = (int) table.getValueAt(selectedRow, 1);
           int borrowID = getBorrowID(bookID);
-            int n = JOptionPane.showConfirmDialog(null , "Do you Want Log out ?","Log Out",JOptionPane.YES_NO_OPTION);
+            int n = JOptionPane.showConfirmDialog(null , "Do you Want Return Book ?","Return Book",JOptionPane.YES_NO_OPTION);
             if(n==0){
            if (returnBook(borrowID, bookID)) { 
                new ReturndReceipt();
