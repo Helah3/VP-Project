@@ -1,4 +1,4 @@
-import com.toedter.calendar.JDateChooser;
+ import com.toedter.calendar.JDateChooser;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
@@ -137,7 +137,7 @@ public class UserProfile extends JFrame {
 
        public void loadUserData() {
         String query = "SELECT * FROM Users WHERE UserID = ?";
-        try (Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+        try (Connection c = DatabaseConnection();
              PreparedStatement stmt = c.prepareStatement(query)) {
 
             stmt.setInt(1, User.getUserID());
@@ -186,7 +186,7 @@ public class UserProfile extends JFrame {
 
         // Update the user's data in the database
         String query = "UPDATE Users SET UserName = ?, Email = ?, Gender = ?, DateOfBitrthd = ? WHERE UserID = ?";
-        try (Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+        try (Connection c = DatabaseConnection();
              PreparedStatement stmt = c.prepareStatement(query)) {
 
             stmt.setString(1, userName);
@@ -208,6 +208,17 @@ public class UserProfile extends JFrame {
         }
     }
 }
+     private static Connection DatabaseConnection() {
+        try {                                                    
+Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+            System.out.println("Database connected successfully!");
+            return connection;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Failed to connect to the database", "Database Error", JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+    }
 
    
 }
