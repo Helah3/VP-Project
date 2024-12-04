@@ -1,4 +1,5 @@
- import javax.swing.*;
+
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import static java.awt.image.ImageObserver.HEIGHT;
@@ -10,11 +11,13 @@ import java.util.Date;
 
 
 public class BooksTable extends JFrame {
-
-    private JButton Borrow, Back;
+    private JLabel genreLabel,authorFilterLabel,yearLabel; 
+    private JButton Borrow, Back,filterButton;
     private String[] columns = {"No.", "Title", "Author", "Genre", "Description", "Publishing Date"};
     private JTable table;
     private DefaultTableModel model;
+    private JComboBox<String> genreComboBox, authorComboBox,yearComboBox ;
+
 
     public BooksTable() {
         super("Book Inventory");
@@ -26,6 +29,7 @@ public class BooksTable extends JFrame {
 
         // Font settings
         Font fontButton = new Font("Arial", Font.PLAIN, 16);
+        Font fontText = new Font("Segoe UI Variable Display Semib", Font.BOLD, 14);
         Font fontTable = new Font("Segoe UI Variable Display Semib", Font.BOLD, 14);
 
         // Button initialization
@@ -33,7 +37,26 @@ public class BooksTable extends JFrame {
         Borrow.setFont(fontButton);
         Back = new JButton("Back");
         Back.setFont(fontButton);
-
+        filterButton = new JButton("Filter");
+        filterButton.setFont(fontButton); 
+         // Initialize labels
+        genreLabel = new JLabel("Genre:      ");  
+        genreLabel.setFont(fontText); 
+        
+        authorFilterLabel = new JLabel("      Author:      ");
+        authorFilterLabel.setFont(fontText);
+        
+        yearLabel = new JLabel("      Publication Year:      ");
+        yearLabel.setFont(fontText);
+        // Initialize ComboBox
+        
+        genreComboBox = new JComboBox<>();
+        genreComboBox.setPreferredSize(new Dimension(150, 25));
+        authorComboBox = new JComboBox<>();
+        authorComboBox.setPreferredSize(new Dimension(150, 25));
+        yearComboBox = new JComboBox<>();
+        yearComboBox.setPreferredSize(new Dimension(150, 25));
+        
         // Table initialization
         model = new NonEditableTableModel(columns, 0); // Custom table model to make cells non-editable
         table = new JTable(model);
@@ -48,18 +71,28 @@ public class BooksTable extends JFrame {
         // Panels
         JPanel subPanel1 = new JPanel(new BorderLayout());
         subPanel1.add(scrollPane);
-
-        JPanel subPanel2 = new JPanel();
-        subPanel2.add(Borrow);
-        subPanel2.add(Back);
+         JPanel subPanel2 = new JPanel(); 
+         subPanel2.setLayout(new FlowLayout(FlowLayout.LEFT));
+         subPanel2.add(genreLabel);
+         subPanel2.add(genreComboBox);
+         subPanel2.add(authorFilterLabel);
+         subPanel2.add(authorComboBox);
+         subPanel2.add(yearLabel);
+         subPanel2.add(yearComboBox);
+         subPanel2.add(filterButton);
+        JPanel subPanel3 = new JPanel();
+        subPanel3.add(Borrow);
+        subPanel3.add(Back);
 
         JPanel mainPanel = (JPanel) this.getContentPane();
-        mainPanel.add(subPanel1, BorderLayout.NORTH);
-        mainPanel.add(subPanel2, BorderLayout.PAGE_END);
-
+        mainPanel.add(subPanel2, BorderLayout.NORTH);
+        mainPanel.add(subPanel1, BorderLayout.CENTER);
+        mainPanel.add(subPanel3, BorderLayout.PAGE_END);
+         loadComboBoxData();
         // Button actions
+        
         Borrow.addActionListener(new BorrowOperation());
-
+        filterButton.addActionListener(new filterOperation());
         Back.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 new DashboardUser();
@@ -73,7 +106,7 @@ public class BooksTable extends JFrame {
     // Establish a connection to the database
     private static Connection DatabaseConnection() {
         try {
-Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/baato/Downloads/LibraryDB.accdb");
             System.out.println("Database connected successfully!");
             return connection;
         } catch (SQLException e) {
@@ -184,4 +217,117 @@ Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/
             return bookID;
         }
 
+}
+
+    private void loadComboBoxData() {
+        // Load Genre
+        try (Connection conn = DatabaseConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT DISTINCT Genre FROM Books")) {
+
+            genreComboBox.addItem("All");
+            while (rs.next()) {
+                genreComboBox.addItem(rs.getString("Genre"));
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading genres: " + e.getMessage());
+        }
+
+        // Load Authors
+        try (Connection conn = DatabaseConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT DISTINCT Author FROM Books")) {
+
+            authorComboBox.addItem("All");
+            while (rs.next()) {
+                authorComboBox.addItem(rs.getString("Author"));
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading authors: " + e.getMessage());
+        }
+        
+        // Load Publication Years
+
+try (Connection conn = DatabaseConnection();
+     Statement stmt = conn.createStatement();
+     ResultSet rs = stmt.executeQuery("SELECT DISTINCT YEAR(PublicationDate) AS year FROM Books")) {
+
+    yearComboBox.addItem("All");
+    while (rs.next()) {
+        yearComboBox.addItem(rs.getInt("year") + ""); // إضافة السنة كعدد صحيح
+    }
+} catch (SQLException e) {
+    JOptionPane.showMessageDialog(this, "Error loading publication years: " + e.getMessage());
 }}
+
+   
+  
+  private class filterOperation implements ActionListener {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String genre = genreComboBox.getSelectedItem().toString();
+        String author = authorComboBox.getSelectedItem().toString();
+        String year = yearComboBox.getSelectedItem().toString();
+        
+        
+        String query = "SELECT Title, Author, Genre, Descripation, PublicationDate FROM Books WHERE 1=1";
+        
+        
+        if (!genre.equals("All")) {
+            query += " AND Genre = '" + genre + "'";
+        }
+        if (!author.equals("All")) {
+            query += " AND Author = '" + author + "'";
+        }
+        if (!year.equals("All")) {
+            query += " AND YEAR(PublicationDate) = '" + year + "'";  // تصفية حسب السنة
+        }
+        
+        try (Connection connection = DatabaseConnection();
+             PreparedStatement pstmt = connection.prepareStatement(query);
+             ResultSet rs = pstmt.executeQuery()) {
+             
+            
+            model.setRowCount(0); 
+            int rowNumber = 1;
+
+            
+            if (!rs.isBeforeFirst()) {
+                   throw new NoresultException("No results found for the selected filters ");
+            } else {
+                while (rs.next()) {
+                    String No = "" + rowNumber;
+                    String title = rs.getString("Title");
+                    author = rs.getString("Author");
+                    genre = rs.getString("Genre");
+                   String description = rs.getString("Descripation");
+                    String rawDate = rs.getString("PublicationDate");
+                    String formattedDate = "";
+
+                    if (rawDate != null && !rawDate.isEmpty()) {
+                        Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(rawDate);
+                        formattedDate = new SimpleDateFormat("yyyy-MM-dd").format(date);
+                    }
+
+                    model.addRow(new Object[]{No, title, author, genre, description ,formattedDate});
+                    rowNumber++;
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace(); 
+            JOptionPane.showMessageDialog(null, "SQL error occurred: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (ParseException ex) {
+            System.out.println("Error in parsing Date\n");
+        }catch(NoresultException e2){
+               JOptionPane.showMessageDialog(null , e2.getMessage(),"No Results",JOptionPane.WARNING_MESSAGE);
+            }
+    }
+}
+    public class NoresultException extends Exception{
+        public NoresultException(String msg){
+            super(msg);
+        }
+    } 
+
+
+}
