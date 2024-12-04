@@ -1,9 +1,12 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package visualprogramming.projectfinal;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.border.TitledBorder;
 import java.sql.*;
-import javax.swing.border.EmptyBorder;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -15,81 +18,89 @@ public class DashboardUser extends JFrame {
         this.setTitle("User Dashboard");
         this.setSize(1024, 576);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setLocation(0, 0);
+        this.setLocationRelativeTo(null); // Center the window
 
-          Font titleFont = new Font("Arial", Font.BOLD, 24);
+        // Set fonts
+        Font titleFont = new Font("Arial", Font.BOLD, 24);
         Font textFont = new Font("Arial", Font.PLAIN, 16);
-        
-         String welcome = "  Welcome to Online Library Management System  ";
+
+        // Title Label
+        String welcome = "Welcome to Online Library Management System";
         titleLabel = new JLabel(welcome, SwingConstants.CENTER);
         titleLabel.setFont(titleFont);
-        titleLabel.setForeground(new Color(34,139,230));
-        titleLabel.setBorder(new EmptyBorder(150, 150, 0, 20));
-        
-         String description = "<html><div style='text-align: center;'>"
-                + "Welcome to <b>Online Library Management System</b>, a comprehensive platform designed to enhance users' experience<br>"
-                + "in accessing educational resources and academic references with ease. The system provides a wide range<br>"
-                + "of services, including member registration, book search, availability checks, and borrowing management.<br><br>"
-                + "This system is built with a user-friendly interface that combines simplicity and efficiency to cater<br>"
-                + "to the needs of students, academics, and researchers. Our library supports e-learning by integrating<br>"
-                + "the latest technologies, enabling access to knowledge anytime and anywhere."
-                + "</div></html>";
+        titleLabel.setForeground(new Color(34, 139, 230));
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
 
+        // Description Label
+        String description = "<html><div style='text-align: center;'>"
+                + "Welcome to <b>Online Library Management System</b>, where you can manage<br>"
+                + "your borrowed books, check availability, and stay notified about your borrowings.<br><br>"
+                + "Enjoy a user-friendly interface tailored to enhance your library experience."
+                + "</div></html>";
         descriptionLabel = new JLabel(description, SwingConstants.CENTER);
         descriptionLabel.setFont(textFont);
-        
+
+        // Main Panel
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
         mainPanel.add(titleLabel);
         mainPanel.add(Box.createVerticalStrut(20)); // Add spacing
         mainPanel.add(descriptionLabel);
 
-        
-       JPanel Main = (JPanel) this.getContentPane();
-       Main.setLayout(new FlowLayout(FlowLayout.CENTER));
-       Main.add(mainPanel);
-       
-       JMenuBar mb = new JMenuBar();
-       JMenu book = new JMenu("Book");
-       JMenu notification  = new JMenu("Notification ");
-       JMenuItem ExitOption = new JMenuItem("Log Out");
-       JMenu content = new JMenu("=");
-       JMenuItem Profile = new JMenuItem("Profile");
-       JMenuItem Search = new JMenuItem("Search Book");
-       JMenuItem Borrowed = new JMenuItem("Borrowed Book");
-       JMenuItem Borrow = new JMenuItem("Borrow Book");
+        // Add to main content pane
+        JPanel contentPane = (JPanel) this.getContentPane();
+        contentPane.setLayout(new BorderLayout());
+        contentPane.add(mainPanel, BorderLayout.CENTER);
 
-    
+        // Add Notification Panel
+        NotifyUser.initializeNotificationPanel(this);
+
+        // Load Notifications Initially
+        loadNotifications();
+
+        // Menu Bar Setup
+        JMenuBar mb = new JMenuBar();
+        JMenu bookMenu = new JMenu("Book");
+        JMenu notificationMenu = new JMenu("Notification");
+        JMenuItem exitOption = new JMenuItem("Log Out");
+        JMenu contentMenu = new JMenu("=");
+
+        JMenuItem profileMenuItem = new JMenuItem("Profile");
+        JMenuItem searchMenuItem = new JMenuItem("Search Book");
+        JMenuItem borrowedMenuItem = new JMenuItem("Borrowed Book");
+        JMenuItem borrowMenuItem = new JMenuItem("Borrow Book");
+
+        // Set up the menu bar
         setJMenuBar(mb);
+        mb.add(contentMenu);
+        mb.add(bookMenu);
+        mb.add(notificationMenu);
 
-  
-        mb.add(content);
-        mb.add(book);
-        mb.add(notification ); 
-        
-        book.add(Search);
-        book.add(Borrowed);
-        book.add(Borrow);
-        
+        // Add menu items
+        bookMenu.add(searchMenuItem);
+        bookMenu.add(borrowedMenuItem);
+        bookMenu.add(borrowMenuItem);
+
+        contentMenu.add(profileMenuItem);
+
+        // Add logout to the far right
         mb.add(Box.createHorizontalGlue());
-        JPanel logoutPane = new JPanel(new FlowLayout(FlowLayout.RIGHT,0,0));
+        JPanel logoutPane = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         logoutPane.setOpaque(false);
-        logoutPane.add(ExitOption);
+        logoutPane.add(exitOption);
         mb.add(logoutPane);
-        
-        content.add(Profile);
 
-        Profile.addActionListener(new profileUser());
-        Search.addActionListener(new SearchBookListener());
-        Borrowed.addActionListener(new ViewBorrowedBooksListener());
-        Borrow.addActionListener(new ReturnBookListener());
-        ExitOption.addActionListener(new Logout());
+        // Action Listeners
+        profileMenuItem.addActionListener(new ProfileUserListener());
+        searchMenuItem.addActionListener(new SearchBookListener());
+        borrowedMenuItem.addActionListener(new ViewBorrowedBooksListener());
+        borrowMenuItem.addActionListener(new BorrowBookListener());
+        exitOption.addActionListener(new LogoutListener());
+
         this.setVisible(true);
     }
 
-     // Load Notifications from Database
+    // Load Notifications from Database
     private void loadNotifications() {
         NotifyUser.clearNotifications(); // Clear existing notifications
 
@@ -138,45 +149,51 @@ public class DashboardUser extends JFrame {
         }
     }
 
-     // Establish a database connection
+    // Establish a database connection
     private Connection getConnection() throws SQLException {
         String url = "jdbc:ucanaccess://C:/Users/helah/Downloads/LibraryDB (1).accdb";
         return DriverManager.getConnection(url);
     }
-    
-     public class profileUser implements ActionListener {
+
+    // Action Listener for Profile
+    public class ProfileUserListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-           new UserProfile();
+            new UserProfile();
             dispose();
         }
     }
+
+    // Action Listener for Searching Books
     public class SearchBookListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-           new BookSearch();
+            new BookSearch();
             dispose();
         }
     }
 
+    // Action Listener for Viewing Borrowed Books
     public class ViewBorrowedBooksListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-           new BorrowedTableBook();
+            new BorrowedTableBook();
             dispose();
-        }}
-
-        
-    public class ReturnBookListener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-            new BooksTable();
-            dispose(); 
         }
     }
-   public class Logout implements ActionListener{
-    public void actionPerformed(ActionEvent e){
-         int n = JOptionPane.showConfirmDialog(null , "Do you Want Log out ?","Log Out",JOptionPane.YES_NO_OPTION);
-            if(n==0)
-            System.exit(0);
-    
-    }}
+
+    // Action Listener for Borrowing Books
+    public class BorrowBookListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            new BooksTable();
+            dispose();
+        }
+    }
+
+    // Action Listener for Logout
+    public class LogoutListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            int n = JOptionPane.showConfirmDialog(null, "Do you want to log out?", "Log Out", JOptionPane.YES_NO_OPTION);
+            if (n == 0) System.exit(0);
+        }
+    }
 
     // Notification System
     public static class NotifyUser {
@@ -218,5 +235,5 @@ public class DashboardUser extends JFrame {
         }
     }
 
-
+   
 }
