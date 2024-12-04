@@ -112,7 +112,7 @@ public class addBook extends JFrame {
                 if (bookNameText.getText().equals("") || authorText.getText().equals("") || 
                     isbnText.getText().equals("") || descriptionText.getText().equals("") || 
                     datePublishedText.getDate() == null || GenreText.getText().equals("")) {
-                    throw new EmptyException("Information Not completed!\nPlease Enter all Information");
+                    throw new CustomExceptions.EmptyException("Information Not completed!\nPlease Enter all Information");
                 }
 
                 String bookName = bookNameText.getText();
@@ -135,11 +135,11 @@ public class addBook extends JFrame {
                     datePublishedText.setDate(null);
  
                 } else {
-                    throw new ErrorAdd("Add Book unsuccessful");
+                    throw new CustomExceptions.ErrorAdd("Add Book unsuccessful");
                 }
-            } catch (EmptyException e2) {
+            } catch (CustomExceptions.EmptyException e2) {
                 JOptionPane.showMessageDialog(null, e2.getMessage(), "Information Not Completed", JOptionPane.WARNING_MESSAGE);
-            } catch (ErrorAdd e2) {
+            } catch (CustomExceptions.ErrorAdd e2) {
                 JOptionPane.showMessageDialog(null, e2.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
@@ -155,7 +155,7 @@ public class addBook extends JFrame {
     public boolean addBookQuery(String Title, String Author, String Genre, String isbn, java.sql.Date PublicationDate, String description) {
         String query = "INSERT INTO Books (Title, Author, Genre, PublicationDate, ISBN, Descripation, Avaliable) VALUES (?,?,?,?,?,?,?)";
         try {
-          Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+          Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/baato/Downloads/LibraryDB.accdb");
             PreparedStatement stmt = c.prepareStatement(query);
 
             stmt.setString(1, Title);
@@ -175,19 +175,6 @@ public class addBook extends JFrame {
         return false;
     }
 
-    public class EmptyException extends Exception {
-        public EmptyException(String msg) {
-            super(msg);
-        }
-    }
-
-    public class ErrorAdd extends Exception {
-        public ErrorAdd(String msg) {
-            super(msg);
-        }
-    }
     
    
 }
-
-
