@@ -1,3 +1,4 @@
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -327,7 +328,7 @@ try (Connection conn = DatabaseConnection();
             int rowNumber = 1;
 
             if (!rs.isBeforeFirst()) { // التحقق إذا كانت النتائج فارغة
-                throw new NoresultException("No results found for the selected filters and search criteria.");
+                throw new CustomExceptions.NoresultException("No results found for the selected filters and search criteria.");
             } else {
                 while (rs.next()) {
                     String No = "" + rowNumber;
@@ -352,13 +353,12 @@ try (Connection conn = DatabaseConnection();
             JOptionPane.showMessageDialog(null, "SQL error occurred: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } catch (ParseException ex) {
             System.out.println("Error in parsing Date\n");
-        } catch (NoresultException e2) {
+        } catch (CustomExceptions.NoresultException e2) {
             JOptionPane.showMessageDialog(null, e2.getMessage(), "No Results", JOptionPane.WARNING_MESSAGE);
         }
     }
-} public class NoresultException extends Exception{
-        public NoresultException(String msg){
-            super(msg);
-        }
-    
 }}
+
+       
+        
+
