@@ -1,4 +1,4 @@
- import javax.swing.*;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import static java.awt.image.ImageObserver.HEIGHT;
@@ -105,7 +105,7 @@ public class BooksTable extends JFrame {
     // Establish a connection to the database
     private static Connection DatabaseConnection() {
         try {
-Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/baato/Downloads/LibraryDB.accdb");
             System.out.println("Database connected successfully!");
             return connection;
         } catch (SQLException e) {
@@ -268,7 +268,9 @@ try (Connection conn = DatabaseConnection();
         String author = authorComboBox.getSelectedItem().toString();
         String year = yearComboBox.getSelectedItem().toString();
         
-        String query = "SELECT Title, Author, Genre, Descripation, PublicationDate FROM Books WHERE Avaliable = TRUE";
+        
+        String query = "SELECT Title, Author, Genre, Descripation, PublicationDate FROM Books WHERE 1=1";
+        
         
         if (!genre.equals("All")) {
             query += " AND Genre = '" + genre + "'";
@@ -277,25 +279,27 @@ try (Connection conn = DatabaseConnection();
             query += " AND Author = '" + author + "'";
         }
         if (!year.equals("All")) {
-            query += " AND YEAR(PublicationDate) = '" + year + "'";
+            query += " AND YEAR(PublicationDate) = '" + year + "'";  // تصفية حسب السنة
         }
         
         try (Connection connection = DatabaseConnection();
              PreparedStatement pstmt = connection.prepareStatement(query);
              ResultSet rs = pstmt.executeQuery()) {
              
+            
             model.setRowCount(0); 
             int rowNumber = 1;
 
-            if (!rs.isBeforeFirst()) { 
-                throw new NoresultException("No results found for the selected filters ");
+            
+            if (!rs.isBeforeFirst()) {
+                   throw new CustomExceptions.NoresultException("No results found for the selected filters ");
             } else {
                 while (rs.next()) {
                     String No = "" + rowNumber;
                     String title = rs.getString("Title");
                     author = rs.getString("Author");
                     genre = rs.getString("Genre");
-                    String description = rs.getString("Descripation");
+                   String description = rs.getString("Descripation");
                     String rawDate = rs.getString("PublicationDate");
                     String formattedDate = "";
 
@@ -304,25 +308,17 @@ try (Connection conn = DatabaseConnection();
                         formattedDate = new SimpleDateFormat("yyyy-MM-dd").format(date);
                     }
 
-                    model.addRow(new Object[]{No, title, author, genre, description, formattedDate});
+                    model.addRow(new Object[]{No, title, author, genre, description ,formattedDate});
                     rowNumber++;
                 }
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            ex.printStackTrace(); 
             JOptionPane.showMessageDialog(null, "SQL error occurred: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } catch (ParseException ex) {
             System.out.println("Error in parsing Date\n");
-        } catch (NoresultException e2) {
-            JOptionPane.showMessageDialog(null, e2.getMessage(), "No Results", JOptionPane.WARNING_MESSAGE);
-        }
+        }catch(CustomExceptions.NoresultException e2){
+               JOptionPane.showMessageDialog(null , e2.getMessage(),"No Results",JOptionPane.WARNING_MESSAGE);
+            }
     }
-}
-    public class NoresultException extends Exception{
-        public NoresultException(String msg){
-            super(msg);
-        }
-    } 
-
-
-}
+}}
