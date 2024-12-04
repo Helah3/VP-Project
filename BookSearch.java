@@ -14,17 +14,20 @@ import java.util.logging.Logger;
  * This class creates a "Book Search" GUI that allows users to search for books 
  * in a database based on selected criteria (e.g., Title, Author, Genre).
  */
+/////
 public class BookSearch extends JFrame {
-    private JLabel searchBy, searchLabel;
+    private JLabel searchBy, searchLabel,genreLabel,authorFilterLabel,yearLabel;
     private JComboBox list; 
+    private JComboBox<String> genreComboBox, authorComboBox,yearComboBox ;
     private JTextField field; 
     private String columns[] = {"No.", "Title", "Author", "Genre", "Description", "Publishing Date"}; 
     private JTable table; 
-    private DefaultTableModel model; 
-    private JButton searchButton, back; 
+    static private DefaultTableModel model; 
+    private JButton searchButton, back,filterButton; 
     private String columnsr[] = {"Title", "Author", "Genre"};
 
     // Constructor for initializing the GUI components.
+
     public BookSearch() {
         super(""); // Create a window without a title.
         // Set up the window properties.
@@ -44,10 +47,28 @@ public class BookSearch extends JFrame {
         searchLabel = new JLabel("Search:      "); 
         searchLabel.setFont(fontText);
         
- 
+        genreLabel = new JLabel("Genre:      ");  
+        genreLabel.setFont(fontText);
+       
+        
+        authorFilterLabel = new JLabel("      Author:      ");
+        authorFilterLabel.setFont(fontText);
+        
+       
+        yearLabel = new JLabel("      Publication Year:      ");
+        yearLabel.setFont(fontText);
+        
         list = new JComboBox(columnsr); 
         list.setPreferredSize(new Dimension(150, 25)); 
         
+         genreComboBox = new JComboBox<>();
+        genreComboBox.setPreferredSize(new Dimension(150, 25));
+        
+        authorComboBox = new JComboBox<>();
+        authorComboBox.setPreferredSize(new Dimension(150, 25));
+        
+        yearComboBox = new JComboBox<>();
+        yearComboBox.setPreferredSize(new Dimension(150, 25));
       
         field = new JTextField(); 
         field.setPreferredSize(new Dimension(150, 25));  
@@ -57,7 +78,8 @@ public class BookSearch extends JFrame {
         searchButton.setFont(fontButton);
         back = new JButton("Back"); 
         back.setFont(fontButton);
-        
+        filterButton = new JButton("Filter");
+        filterButton.setFont(fontButton);
         
         model = new NonEditableTableModel(columns, 0); 
         table = new JTable(model); 
@@ -79,8 +101,18 @@ public class BookSearch extends JFrame {
         
         JPanel subPanel3 = new JPanel();
         subPanel3.add(searchButton); 
-        subPanel3.add(back); 
-            
+        subPanel3.add(back);
+        
+        
+         JPanel subPanel4 = new JPanel(); 
+         subPanel4.setLayout(new FlowLayout(FlowLayout.LEFT));
+         subPanel4.add(genreLabel);
+         subPanel4.add(genreComboBox);
+         subPanel4.add(authorFilterLabel);
+         subPanel4.add(authorComboBox);
+         subPanel4.add(yearLabel);
+         subPanel4.add(yearComboBox);
+         subPanel4.add(filterButton);
         
         JPanel mainPanel1 = new JPanel();
         TitledBorder title = BorderFactory.createTitledBorder("Search Book"); 
@@ -93,12 +125,15 @@ public class BookSearch extends JFrame {
         mainPanel1.add(subPanel2); 
         mainPanel1.add(Box.createVerticalStrut(10)); 
         mainPanel1.add(subPanel3); 
+        mainPanel1.add(Box.createVerticalStrut(10)); 
+        mainPanel1.add(subPanel4); 
         mainPanel1.add(Box.createVerticalStrut(30)); 
         mainPanel1.add(scrollPane); 
         
         
         JPanel mainPanel = (JPanel) this.getContentPane();
         mainPanel.add(mainPanel1, BorderLayout.NORTH);
+         loadComboBoxData();
 
         // Action for the "Back" button
         back.addActionListener(new ActionListener() {
@@ -127,15 +162,17 @@ public class BookSearch extends JFrame {
                             }
         });
         
-        // Action for the "Search" button
+        // Action for the "Search" button and filterButton
         searchButton.addActionListener(new searchOperation());
-        this.setVisible(true); 
+       
+       filterButton.addActionListener(new filterOperation() );
+         this.setVisible(true); 
     }
 
     // Establish connection to the database.
     private static Connection DatabaseConnection() {
-        try {
-        Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+        try {                                                                       
+        Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/baato/Downloads/LibraryDB.accdb");
             System.out.println("Database connected successfully!");
             return connection;
         } catch (SQLException e) {
@@ -144,6 +181,48 @@ public class BookSearch extends JFrame {
             return null; 
         }
     }
+        
+
+    private void loadComboBoxData() {
+        // Load Genre
+        try (Connection conn = DatabaseConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT DISTINCT Genre FROM Books")) {
+
+            genreComboBox.addItem("All");
+            while (rs.next()) {
+                genreComboBox.addItem(rs.getString("Genre"));
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading genres: " + e.getMessage());
+        }
+
+        // Load Authors
+        try (Connection conn = DatabaseConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT DISTINCT Author FROM Books")) {
+
+            authorComboBox.addItem("All");
+            while (rs.next()) {
+                authorComboBox.addItem(rs.getString("Author"));
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading authors: " + e.getMessage());
+        }
+        
+        // Load Publication Years
+
+try (Connection conn = DatabaseConnection();
+     Statement stmt = conn.createStatement();
+     ResultSet rs = stmt.executeQuery("SELECT DISTINCT YEAR(PublicationDate) AS year FROM Books")) {
+
+    yearComboBox.addItem("All");
+    while (rs.next()) {
+        yearComboBox.addItem(rs.getInt("year") + ""); // إضافة السنة كعدد صحيح
+    }
+} catch (SQLException e) {
+    JOptionPane.showMessageDialog(this, "Error loading publication years: " + e.getMessage());
+}}
     
     // Action listener class to handle the search operation.
     public class searchOperation implements ActionListener {
@@ -207,4 +286,79 @@ public class BookSearch extends JFrame {
             }
         }
     }
-}
+    
+    private class filterOperation implements ActionListener {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String searchValue = field.getText().trim(); // نص البحث
+        String selectedColumn = list.getSelectedItem().toString(); // العمود المختار
+        String genre = genreComboBox.getSelectedItem().toString();
+        String author = authorComboBox.getSelectedItem().toString();
+        String year = yearComboBox.getSelectedItem().toString();
+
+        // بدء بناء الاستعلام
+        String query = "SELECT Title, Author, Genre, Descripation, PublicationDate FROM Books WHERE 1=1";
+
+        // إضافة نص البحث إذا كان موجودًا
+        if (!searchValue.isEmpty()) {
+            query += " AND " + selectedColumn + " LIKE '%" + searchValue + "%'";
+        }
+
+        // إضافة تصفية النوع إذا تم تحديده
+        if (!genre.equals("All")) {
+            query += " AND Genre = '" + genre + "'";
+        }
+
+        // إضافة تصفية المؤلف إذا تم تحديده
+        if (!author.equals("All")) {
+            query += " AND Author = '" + author + "'";
+        }
+
+        // إضافة تصفية السنة إذا تم تحديدها
+        if (!year.equals("All")) {
+            query += " AND YEAR(PublicationDate) = '" + year + "'";
+        }
+
+        try (Connection connection = DatabaseConnection();
+             PreparedStatement pstmt = connection.prepareStatement(query);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            model.setRowCount(0); // مسح البيانات السابقة من الجدول
+            int rowNumber = 1;
+
+            if (!rs.isBeforeFirst()) { // التحقق إذا كانت النتائج فارغة
+                throw new NoresultException("No results found for the selected filters and search criteria.");
+            } else {
+                while (rs.next()) {
+                    String No = "" + rowNumber;
+                    String title = rs.getString("Title");
+                    author = rs.getString("Author");
+                    genre = rs.getString("Genre");
+                    String description = rs.getString("Descripation");
+                    String rawDate = rs.getString("PublicationDate");
+                    String formattedDate = "";
+
+                    if (rawDate != null && !rawDate.isEmpty()) {
+                        Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(rawDate);
+                        formattedDate = new SimpleDateFormat("yyyy-MM-dd").format(date);
+                    }
+
+                    model.addRow(new Object[]{No, title, author, genre, description, formattedDate});
+                    rowNumber++;
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "SQL error occurred: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (ParseException ex) {
+            System.out.println("Error in parsing Date\n");
+        } catch (NoresultException e2) {
+            JOptionPane.showMessageDialog(null, e2.getMessage(), "No Results", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+} public class NoresultException extends Exception{
+        public NoresultException(String msg){
+            super(msg);
+        }
+    
+}}
