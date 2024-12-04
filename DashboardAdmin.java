@@ -14,25 +14,28 @@ public class DashboardAdmin extends JFrame {
         this.setTitle("Library Management System - Admin Dashboard");
         this.setSize(1024, 576);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setLocation(100, 50);
+        this.setLocation(0, 0);
 
         // Fonts
         Font titleFont = new Font("Arial", Font.BOLD, 24);
         Font textFont = new Font("Arial", Font.PLAIN, 16);
 
-        // Title Label
-        String welcome = "Welcome to Online Library Management System";
-        titleLabel = new JLabel(welcome, SwingConstants.CENTER);
-        titleLabel.setFont(titleFont);
-        titleLabel.setForeground(new Color(34, 139, 230));
-        titleLabel.setBorder(new EmptyBorder(30, 0, 10, 0));
+        String welcome = "<html><div style='text-align: center;'>" +
+                 "Welcome to Online Library Management System" +
+                 "</div></html>";
+         titleLabel = new JLabel(welcome, SwingConstants.CENTER);
+         titleLabel.setFont(titleFont);
+         titleLabel.setForeground(new Color(34, 139, 230));
+         titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
 
-        // Description Label
-        String description = "<html><div style='text-align: center;'>"
-                + "Manage the library's operations effectively, monitor book availability,<br>"
-                + "track borrowing activity, and maintain user records seamlessly.</div></html>";
-        descriptionLabel = new JLabel(description, SwingConstants.CENTER);
-        descriptionLabel.setFont(textFont);
+         // Description Label
+         String description = "<html><div style='text-align: center; margin: 10px;'>" +
+                 "Welcome to <b>Online Library Management System</b>, where you can manage your<br>" +
+                 "borrowed books, check availability, and stay notified about your borrowings.<br><br>" +
+                 "Enjoy a user-friendly interface tailored to enhance your library experience." +
+                 "</div></html>";
+         descriptionLabel = new JLabel(description, SwingConstants.CENTER);
+         descriptionLabel.setFont(textFont);
 
         // Main Panel
         JPanel mainPanel = new JPanel();
@@ -61,8 +64,7 @@ public class DashboardAdmin extends JFrame {
         JMenuBar mb = new JMenuBar();
         JMenu book = new JMenu("Book");
         JMenu member = new JMenu("Member");
-        JMenu notification = new JMenu("Notification");
-        JMenu content = new JMenu("Menu");
+        JMenu content = new JMenu("=");
         JMenuItem Profile = new JMenuItem("Profile");
         JMenuItem addBook = new JMenuItem("Add Book");
         JMenuItem Borrowed = new JMenuItem("Borrowed Book");
@@ -77,7 +79,6 @@ public class DashboardAdmin extends JFrame {
         mb.add(content);
         mb.add(book);
         mb.add(member);
-        mb.add(notification);
 
         book.add(addBook);
         book.add(Borrowed);
@@ -88,10 +89,11 @@ public class DashboardAdmin extends JFrame {
         member.add(AddMember);
         member.add(UpdateMember);
 
-        content.add(Profile);
+        content.add(Profile);    
+        content.add(new JSeparator(JSeparator.HORIZONTAL));
+        content.add(ExitOption);
 
-        mb.add(Box.createHorizontalGlue());
-        mb.add(ExitOption);
+     
 
         // Action Listeners
         Profile.addActionListener(new profileUser());
@@ -109,7 +111,7 @@ public class DashboardAdmin extends JFrame {
         this.setVisible(true);
     }
 private Connection getConnection() throws SQLException {
-String url = "jdbc:ucanaccess://C:/Users/helah/Downloads/LibraryDB (1).accdb";
+        String url = "jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb";
         return DriverManager.getConnection(url);
     }
 
