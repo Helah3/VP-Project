@@ -125,7 +125,7 @@ public class BorrowedTableBook extends JFrame {
             int n = JOptionPane.showConfirmDialog(null , "Do you Want Log out ?","Log Out",JOptionPane.YES_NO_OPTION);
             if(n==0){
            if (returnBook(borrowID, bookID)) { 
-               
+               new ReturndReceipt();
                JOptionPane.showMessageDialog(null, "Book returned successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
                         ((DefaultTableModel) table.getModel()).removeRow(selectedRow);  
            }
