@@ -1,5 +1,4 @@
-
-import javax.swing.*;
+ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
@@ -92,7 +91,7 @@ public class BorrowedBook extends JFrame {
         loadComboBoxData();
 
         // Back button action
-        filterButton.addActionListener(new filterOperation() );
+        filterButton.addActionListener(new FilterOperation() );
         Back.addActionListener(new ActionListener(){ //Back button Action
         public void actionPerformed (ActionEvent e){
             new DashboardAdmin();
@@ -106,7 +105,7 @@ public class BorrowedBook extends JFrame {
     // Database connection method
     private static Connection DatabaseConnection() {
         try {
-Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/baato/Downloads/LibraryDB.accdb");
+Connection connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
 System.out.println("Database connected successfully!");
             return connection;
         } catch (SQLException e) {
@@ -117,68 +116,66 @@ System.out.println("Database connected successfully!");
     }
 
     // Retrieve data from database
-    private void RetrieveBook() {
-        Connection connection = DatabaseConnection(); //Start Connection
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+   private void RetrieveBook() {
+    Connection connection = DatabaseConnection();
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-        if (connection == null) return;
+    if (connection == null) return;
 
-        String query = "SELECT " + // sql statement (query) to get Borrowings detials from database
-                "Books.Title AS Title, " +
-                "Books.Author AS Author, " +
-                "Books.Genre AS Genre, " +
-                "Borrowings.BorrowDate AS BorrowDate, " +
-                "Borrowings.ReturnDate AS ReturnDate, " +
-                "Users.Username AS Username " +
-                "FROM Borrowings " +
-                "JOIN Books ON Borrowings.BookID = Books.BookID " +
-                "JOIN Users ON Borrowings.UserID = Users.UserID";
+    String query = "SELECT " +
+            "Books.Title AS Title, " +
+            "Books.Author AS Author, " +
+            "Books.Genre AS Genre, " +
+            "Borrowings.BorrowDate AS BorrowDate, " +
+            "Borrowings.ReturnDate AS ReturnDate, " +
+            "Users.Username AS Username " +
+            "FROM Borrowings " +
+            "JOIN Books ON Borrowings.BookID = Books.BookID " +
+            "JOIN Users ON Borrowings.UserID = Users.UserID " +
+            "WHERE Borrowings.BorrowDate IS NOT NULL AND Borrowings.ReturnDate IS NOT NULL";
 
-        try {
-            Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery(query);
+    try {
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery(query);
 
-            model.setRowCount(0); // Clear table rows
-            int rowNumber = 1;
+        model.setRowCount(0); // Clear table rows
+        int rowNumber = 1;
 
-            while (rs.next()) {
-                // Retrieve data
-                String No = "" + rowNumber;
-                String title = rs.getString("Title");
-                String author = rs.getString("Author");
-                String genre = rs.getString("Genre");
-                String borrowDate = rs.getString("BorrowDate");
-                String returnDate = rs.getString("ReturnDate");
-                String username = rs.getString("Username");
+        while (rs.next()) {
+            String No = "" + rowNumber;
+            String title = rs.getString("Title");
+            String author = rs.getString("Author");
+            String genre = rs.getString("Genre");
+            String borrowDate = rs.getString("BorrowDate");
+            String returnDate = rs.getString("ReturnDate");
+            String username = rs.getString("Username");
 
-                // Format dates
-                String formattedDate1 = "";
-                String formattedDate2 = "";
-                if ((borrowDate != null && !borrowDate.isEmpty()) || (returnDate != null && !returnDate.isEmpty())) { // format date
-                    Date date1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(borrowDate);
-                    Date date2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(returnDate);
-                    formattedDate1 = dateFormat.format(date1);
-                    formattedDate2 = dateFormat.format(date2);
-                }
-
-                // Add data to table
-                model.addRow(new Object[]{No, title, author, genre, formattedDate1, formattedDate2, username});
-                rowNumber++;
+            // Format dates
+            String formattedBorrowDate = "";
+            String formattedReturnDate = "";
+            if (borrowDate != null && !borrowDate.isEmpty()) {
+                Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(borrowDate);
+                formattedBorrowDate = dateFormat.format(date);
+            }
+            if (returnDate != null && !returnDate.isEmpty()) {
+                Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(returnDate);
+                formattedReturnDate = dateFormat.format(date);
             }
 
-            rs.close();
-            stmt.close();
-            connection.close();
-            System.out.println("Successfully retrieved data.");
-
-        } catch (SQLException e) {
-            System.out.println("SQL Error: " + e.getMessage());
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Failed to retrieve data from database", "Database Error", JOptionPane.ERROR_MESSAGE);
-        } catch (ParseException ex) {
-            System.out.println("Error in parsing Date\n");
+            model.addRow(new Object[]{No, title, author, genre, formattedBorrowDate, formattedReturnDate, username});
+            rowNumber++;
         }
+
+        rs.close();
+        stmt.close();
+        connection.close();
+        System.out.println("Successfully retrieved data.");
+
+    } catch (SQLException | ParseException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Failed to retrieve data from database", "Database Error", JOptionPane.ERROR_MESSAGE);
     }
+}
     
   
     private void loadComboBoxData() {
@@ -224,65 +221,68 @@ try (Connection conn = DatabaseConnection();
 
    
   
-  private class filterOperation implements ActionListener {
+  private class FilterOperation implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         String genre = genreComboBox.getSelectedItem().toString();
         String author = authorComboBox.getSelectedItem().toString();
         String year = yearComboBox.getSelectedItem().toString();
-        
-        
-        String query = "SELECT Title, Author, Genre, Descripation, PublicationDate FROM Books WHERE 1=1";
-        
-        
+
+        String query = "SELECT " +
+                "Books.Title AS Title, " +
+                "Books.Author AS Author, " +
+                "Books.Genre AS Genre, " +
+                "Borrowings.BorrowDate AS BorrowDate, " +
+                "Borrowings.ReturnDate AS ReturnDate, " +
+                "Users.Username AS Username " +
+                "FROM Borrowings " +
+                "JOIN Books ON Borrowings.BookID = Books.BookID " +
+                "JOIN Users ON Borrowings.UserID = Users.UserID " +
+                "WHERE Borrowings.BorrowDate IS NOT NULL AND Borrowings.ReturnDate IS NOT NULL";
+
         if (!genre.equals("All")) {
-            query += " AND Genre = '" + genre + "'";
+            query += " AND Books.Genre = '" + genre + "'";
         }
         if (!author.equals("All")) {
-            query += " AND Author = '" + author + "'";
+            query += " AND Books.Author = '" + author + "'";
         }
         if (!year.equals("All")) {
-            query += " AND YEAR(PublicationDate) = '" + year + "'";  // تصفية حسب السنة
+            query += " AND YEAR(Books.PublicationDate) = '" + year + "'";
         }
-        
+
         try (Connection connection = DatabaseConnection();
              PreparedStatement pstmt = connection.prepareStatement(query);
              ResultSet rs = pstmt.executeQuery()) {
-             
-            
-            model.setRowCount(0); 
+
+            model.setRowCount(0);
             int rowNumber = 1;
 
-            
-            if (!rs.isBeforeFirst()) {
-                   throw new NoresultException("No results found for the selected filters ");
-            } else {
-                while (rs.next()) {
-                    String No = "" + rowNumber;
-                    String title = rs.getString("Title");
-                    author = rs.getString("Author");
-                    genre = rs.getString("Genre");
-                   String description = rs.getString("Descripation");
-                    String rawDate = rs.getString("PublicationDate");
-                    String formattedDate = "";
+            while (rs.next()) {
+                String No = "" + rowNumber;
+                String title = rs.getString("Title");
+                String filteredAuthor = rs.getString("Author");
+                String filteredGenre = rs.getString("Genre");
+                String borrowDate = rs.getString("BorrowDate");
+                String returnDate = rs.getString("ReturnDate");
+                String username = rs.getString("Username");
 
-                    if (rawDate != null && !rawDate.isEmpty()) {
-                        Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(rawDate);
-                        formattedDate = new SimpleDateFormat("yyyy-MM-dd").format(date);
-                    }
-
-                    model.addRow(new Object[]{No, title, author, genre, description ,formattedDate});
-                    rowNumber++;
+                String formattedBorrowDate = "";
+                String formattedReturnDate = "";
+                if (borrowDate != null && !borrowDate.isEmpty()) {
+                    Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(borrowDate);
+                    formattedBorrowDate = new SimpleDateFormat("yyyy-MM-dd").format(date);
                 }
+                if (returnDate != null && !returnDate.isEmpty()) {
+                    Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(returnDate);
+                    formattedReturnDate = new SimpleDateFormat("yyyy-MM-dd").format(date);
+                }
+
+                model.addRow(new Object[]{No, title, filteredAuthor, filteredGenre, formattedBorrowDate, formattedReturnDate, username});
+                rowNumber++;
             }
-        } catch (SQLException ex) {
-            ex.printStackTrace(); 
-            JOptionPane.showMessageDialog(null, "SQL error occurred: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        } catch (ParseException ex) {
-            System.out.println("Error in parsing Date\n");
-        }catch(NoresultException e2){
-               JOptionPane.showMessageDialog(null , e2.getMessage(),"No Results",JOptionPane.WARNING_MESSAGE);
-            }
+        } catch (SQLException | ParseException ex) {
+            JOptionPane.showMessageDialog(BorrowedBook.this, "Error filtering data: " + ex.getMessage());
+        }
     }
 }
     public class NoresultException extends Exception{
