@@ -1,3 +1,4 @@
+
  import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -8,7 +9,7 @@ import java.text.SimpleDateFormat;
 
 public class NewMember extends JFrame {
 
-    private JLabel labelUserName, labelPassword, labelDOB, labelGender ,labelRole ,labelEmail, emailErrorLabel, passwordErrorLabel;
+    private JLabel labelUserName, labelPassword, labelDOB, labelGender, labelEmail, labelRole;
     private JTextField textUserName, textEmail;
     private JPasswordField passwordTextField;
     private JRadioButton radioMale, radioFemale, radioAdmin, radioMember;
@@ -41,19 +42,10 @@ public class NewMember extends JFrame {
         labelPassword.setBorder(new EmptyBorder(0, 20, 0, 20));
         passwordTextField = new JPasswordField(15);
         labelPassword.setFont(fontText);
-        
-        passwordErrorLabel = new JLabel("");
-        passwordErrorLabel.setForeground(Color.RED);
-        passwordErrorLabel.setFont(new Font("Arial", Font.PLAIN, 10));
-
-        JPanel passwordFieldPanel = new JPanel(new BorderLayout());
-        passwordFieldPanel.add(passwordTextField, BorderLayout.CENTER);
-        passwordFieldPanel.add(passwordErrorLabel, BorderLayout.SOUTH);
-
         JPanel panelPassword = new JPanel(new FlowLayout());
         panelPassword.add(labelPassword);
-        panelPassword.add(passwordFieldPanel);
-        
+        panelPassword.add(passwordTextField);
+
         labelDOB = new JLabel("Date of Birth");
         labelDOB.setBorder(new EmptyBorder(0, 20, 0, 20));
         labelDOB.setFont(fontText);
@@ -93,20 +85,9 @@ public class NewMember extends JFrame {
         labelEmail.setBorder(new EmptyBorder(0, 20, 0, 20));
         textEmail = new JTextField(15);
         labelEmail.setFont(fontText);
-       
-         emailErrorLabel = new JLabel(""); 
-        emailErrorLabel.setForeground(Color.RED); 
-        emailErrorLabel.setFont(new Font("Arial", Font.PLAIN, 10)); 
-
-        JPanel emailFieldPanel = new JPanel(new BorderLayout());
-        emailFieldPanel.add(textEmail, BorderLayout.CENTER); 
-        emailFieldPanel.add(emailErrorLabel, BorderLayout.SOUTH); 
-
-        JPanel panelEmail = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel panelEmail = new JPanel(new FlowLayout());
         panelEmail.add(labelEmail);
-        panelEmail.add(emailFieldPanel);
-        
-        
+        panelEmail.add(textEmail);
 
 
         buttonAdd = new JButton("Add");
@@ -135,80 +116,48 @@ public class NewMember extends JFrame {
 
         buttonAdd.addActionListener(new AddButton());
         buttonBack.addActionListener(new BackToDashboard());
-         textEmail.addKeyListener(new KeyAdapter(){
-            public void keyTyped(KeyEvent e){
-                emailErrorLabel.setText("");
-                textEmail.setBorder(UIManager.getBorder("TextField.border")); 
 
-            }
-        });
-         
-        passwordTextField.addKeyListener(new KeyAdapter() {
-            public void keyTyped(KeyEvent e) {
-                passwordErrorLabel.setText("");
-                passwordTextField.setBorder(UIManager.getBorder("PasswordField.border")); 
-            }});
         this.setVisible(true);
     }
 
     public class AddButton implements ActionListener {
-    public void actionPerformed(ActionEvent e) {
-        try {
-            if (textUserName.getText().equals("") || passwordTextField.getText().equals("") ||
-                    datePublishedText.getDate() == null || textEmail.getText().equals("") ||
-                    (!radioMale.isSelected() && !radioFemale.isSelected()) ||
-                    (!radioAdmin.isSelected() && !radioMember.isSelected())) {
-                throw new EmptyFieldsException("All fields are required!");
+        public void actionPerformed(ActionEvent e) {
+            try {
+                if (textUserName.getText().equals("") || passwordTextField.getText().equals("")||
+                        datePublishedText.getDate() == null || textEmail.getText().equals("") ||
+                        (!radioMale.isSelected() && !radioFemale.isSelected()) ||
+                        (!radioAdmin.isSelected() && !radioMember.isSelected())) {
+                    throw new CustomExceptions.EmptyFieldsException("All fields are required !");
+                }
+
+                String UserName= textUserName.getText();
+                String Password = new String(passwordTextField.getPassword());
+                String Email = textEmail.getText();
+                String Gender = radioMale.isSelected() ? "Male" : "Female";
+                String Role = radioAdmin.isSelected() ? "Admin" : "Member";
+
+                java.util.Date utilDate = datePublishedText.getDate();
+                java.sql.Date  DateOfBitrthd = new java.sql.Date(utilDate.getTime());
+
+                if (addNewMember(UserName,Email,Password , Role ,  Gender, DateOfBitrthd)) {
+                    JOptionPane.showMessageDialog(null, "Member added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    textUserName.setText("");
+                    passwordTextField.setText("");
+                    textEmail.setText("");
+                   genderGroup.clearSelection();
+                    datePublishedText.setDate(null);
+        roleGroup.clearSelection();
+                } else {
+                    throw new CustomExceptions.DatabaseException("Failed to add member. Try again.");
+                }
+            } catch (CustomExceptions.EmptyFieldsException ex) {
+                JOptionPane.showMessageDialog(null, ex.getMessage(), "Empty text", JOptionPane.WARNING_MESSAGE);
+            } catch (CustomExceptions.DatabaseException ex) {
+                JOptionPane.showMessageDialog(null, ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             }
-
-            String UserName = textUserName.getText();
-            String Password = new String(passwordTextField.getPassword());
-            String Email = textEmail.getText();
-            String Gender = radioMale.isSelected() ? "Male" : "Female";
-            String Role = radioAdmin.isSelected() ? "Admin" : "Member";
-
-           
-            String passwordRegex = "^(?=.*[0-9])(?=.*[a-zA-Z]).{8,}$";
-          if (!Password.matches(passwordRegex)) {
-                passwordErrorLabel.setText("<html>*Password must be at least <br> 8 characters long and include <br> both letters and numbers.</html>");
-                passwordTextField.setBorder(BorderFactory.createLineBorder(Color.RED)); 
-                return; 
-        } else {
-                passwordErrorLabel.setText(""); 
-                passwordTextField.setBorder(UIManager.getBorder("PasswordField.border")); 
-}
-
-        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
-              if (!Email.matches(emailRegex)) {
-                    emailErrorLabel.setText("*Invalid email format!"); 
-                    textEmail.setBorder(BorderFactory.createLineBorder(Color.RED)); 
-                    return; 
-            } else {
-                    emailErrorLabel.setText(""); 
-                    textEmail.setBorder(UIManager.getBorder("TextField.border")); 
-}
-
-            java.util.Date utilDate = datePublishedText.getDate();
-            java.sql.Date DateOfBitrthd = new java.sql.Date(utilDate.getTime());
-
-            if (addNewMember(UserName, Email, Password, Role, Gender, DateOfBitrthd)) {
-                JOptionPane.showMessageDialog(null, "Member added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                textUserName.setText("");
-                passwordTextField.setText("");
-                textEmail.setText("");
-                genderGroup.clearSelection();
-                datePublishedText.setDate(null);
-                roleGroup.clearSelection();
-            } else {
-                throw new DatabaseException("Failed to add member. Try again.");
-            }
-        } catch (EmptyFieldsException ex) {
-            JOptionPane.showMessageDialog(null, ex.getMessage(), "Empty Error", JOptionPane.WARNING_MESSAGE);
-        } catch (DatabaseException ex) {
-            JOptionPane.showMessageDialog(null, ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-}
+
     public class BackToDashboard implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             new DashboardAdmin(); 
@@ -219,7 +168,7 @@ public class NewMember extends JFrame {
     public boolean addNewMember(String UserName, String Email, String Password , String Role , String Gender ,java.sql.Date DateOfBitrthd  ) {
         String query = "INSERT INTO Users (UserName, Email, Password, Role, Gender, DateOfBitrthd) VALUES (?, ?, ?, ?, ?, ?)";
         try {
-          Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+          Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/baato/Downloads/LibraryDB.accdb");
             PreparedStatement stmt = c.prepareStatement(query);
 
             stmt.setString(1, UserName);
@@ -238,16 +187,6 @@ public class NewMember extends JFrame {
         return false;
     }
 
-    public class EmptyFieldsException extends Exception {
-        public EmptyFieldsException(String message) {
-            super(message);
-        }
-    }
-
-    public class DatabaseException extends Exception {
-        public DatabaseException(String message) {
-            super(message);
-        }
-    }
+   
    
 }
