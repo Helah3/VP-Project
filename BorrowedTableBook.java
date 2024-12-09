@@ -123,15 +123,26 @@ public class BorrowedTableBook extends JFrame {
           int bookID = (int) table.getValueAt(selectedRow, 1);
           int borrowID = getBorrowID(bookID);
             int n = JOptionPane.showConfirmDialog(null , "Do you Want Return Book ?","Return Book",JOptionPane.YES_NO_OPTION);
-            if(n==0){
-           if (returnBook(borrowID, bookID)) { 
-               new ReturndReceipt();
-               JOptionPane.showMessageDialog(null, "Book returned successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                        ((DefaultTableModel) table.getModel()).removeRow(selectedRow);  
-           }
-           else {
-               JOptionPane.showMessageDialog(null, "Failed to return the book. Please try again.", "Error", JOptionPane.ERROR_MESSAGE); } }
-        }}
+            if (n == 0) {
+                int check = 0;
+                ReturndReceipt Receipt = new ReturndReceipt(check);
+                check = Receipt.getc();
+                while (check == 5) {
+                    Receipt = new ReturndReceipt(check);
+                    check = Receipt.getc();
+                }
+                if (check == 1) {
+                    if (returnBook(borrowID, bookID)) {
+                        JOptionPane.showMessageDialog(null, "Book returned successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                        ((DefaultTableModel) table.getModel()).removeRow(selectedRow);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Failed to return the book. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+
+        }
+    }
     
    private boolean returnBook(int borrowID, int bookID) { 
     
