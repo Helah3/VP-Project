@@ -13,9 +13,10 @@ import java.io.File;
 public class ReturndReceipt {
 
     private String fileName;
-
-    public ReturndReceipt() {
+    private int c ;
+    public ReturndReceipt(int c ){
         this.fileName = "ReturnInvoice";
+        this.c = c ;
         ChooseFileToModify();
     }
 
@@ -26,13 +27,22 @@ public class ReturndReceipt {
         fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("PDF Files", "pdf"));
 
         int result = fileChooser.showOpenDialog(null);
+        
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
             System.out.println("User chose: " + selectedFile.getAbsolutePath());
             ModifyInvoice(selectedFile);
         } else {
             JOptionPane.showMessageDialog(null, "No file selected", "Error", JOptionPane.ERROR_MESSAGE);
+            if(result == JFileChooser.CANCEL_OPTION)
+                c = 0 ;
+            else 
+                c = 5 ;
         }
+    }
+    
+    public int getc () {
+        return c ;
     }
 
     // Method to modify the selected invoice
@@ -62,6 +72,7 @@ public class ReturndReceipt {
                 logo.setFixedPosition(x, y);
                 logo.setFixedPosition(x, y);
                 document.add(logo);
+                c = 1 ;
             } else {
                 JOptionPane.showMessageDialog(null, "Photo not found", "Photo Error", JOptionPane.ERROR_MESSAGE);
             }
