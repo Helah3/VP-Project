@@ -269,7 +269,7 @@ try (Connection conn = DatabaseConnection();
         String year = yearComboBox.getSelectedItem().toString();
         
         
-        String query = "SELECT Title, Author, Genre, Descripation, PublicationDate FROM Books WHERE 1=1";
+        String query = "SELECT Title, Author, Genre, Descripation, PublicationDate FROM Books WHERE Avaliable = TRUE";
         
         
         if (!genre.equals("All")) {
