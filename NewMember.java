@@ -1,4 +1,3 @@
-
  import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -9,7 +8,7 @@ import java.text.SimpleDateFormat;
 
 public class NewMember extends JFrame {
 
-    private JLabel labelUserName, labelPassword, labelDOB, labelGender, labelEmail, labelRole;
+    private JLabel labelUserName, labelPassword, labelDOB, labelGender, labelEmail, labelRole ,  emailErrorLabel, passwordErrorLabel;
     private JTextField textUserName, textEmail;
     private JPasswordField passwordTextField;
     private JRadioButton radioMale, radioFemale, radioAdmin, radioMember;
@@ -38,13 +37,23 @@ public class NewMember extends JFrame {
         panelUserName.add(labelUserName);
         panelUserName.add(textUserName);
 
-        labelPassword = new JLabel("Password");
+         labelPassword = new JLabel("Password");
         labelPassword.setBorder(new EmptyBorder(0, 20, 0, 20));
         passwordTextField = new JPasswordField(15);
         labelPassword.setFont(fontText);
+       
+        
+        passwordErrorLabel = new JLabel("");
+        passwordErrorLabel.setForeground(Color.RED);
+        passwordErrorLabel.setFont(new Font("Arial", Font.PLAIN, 10));
+
+        JPanel passwordFieldPanel = new JPanel(new BorderLayout());
+        passwordFieldPanel.add(passwordTextField, BorderLayout.CENTER);
+        passwordFieldPanel.add(passwordErrorLabel, BorderLayout.SOUTH);
+
         JPanel panelPassword = new JPanel(new FlowLayout());
         panelPassword.add(labelPassword);
-        panelPassword.add(passwordTextField);
+        panelPassword.add(passwordFieldPanel);
 
         labelDOB = new JLabel("Date of Birth");
         labelDOB.setBorder(new EmptyBorder(0, 20, 0, 20));
@@ -85,9 +94,18 @@ public class NewMember extends JFrame {
         labelEmail.setBorder(new EmptyBorder(0, 20, 0, 20));
         textEmail = new JTextField(15);
         labelEmail.setFont(fontText);
-        JPanel panelEmail = new JPanel(new FlowLayout());
+        
+        emailErrorLabel = new JLabel(""); 
+        emailErrorLabel.setForeground(Color.RED); 
+        emailErrorLabel.setFont(new Font("Arial", Font.PLAIN, 10)); 
+
+        JPanel emailFieldPanel = new JPanel(new BorderLayout());
+        emailFieldPanel.add(textEmail, BorderLayout.CENTER); 
+        emailFieldPanel.add(emailErrorLabel, BorderLayout.SOUTH); 
+
+        JPanel panelEmail = new JPanel(new FlowLayout(FlowLayout.CENTER));
         panelEmail.add(labelEmail);
-        panelEmail.add(textEmail);
+        panelEmail.add(emailFieldPanel);
 
 
         buttonAdd = new JButton("Add");
@@ -117,6 +135,20 @@ public class NewMember extends JFrame {
         buttonAdd.addActionListener(new AddButton());
         buttonBack.addActionListener(new BackToDashboard());
 
+        textEmail.addKeyListener(new KeyAdapter(){
+            public void keyTyped(KeyEvent e){
+                emailErrorLabel.setText("");
+                textEmail.setBorder(UIManager.getBorder("TextField.border")); 
+
+            }
+        });
+        passwordTextField.addKeyListener(new KeyAdapter() {
+        @Override
+            public void keyTyped(KeyEvent e) {
+                passwordErrorLabel.setText("");
+                passwordTextField.setBorder(UIManager.getBorder("PasswordField.border")); 
+            }
+});
         this.setVisible(true);
     }
 
@@ -136,6 +168,25 @@ public class NewMember extends JFrame {
                 String Gender = radioMale.isSelected() ? "Male" : "Female";
                 String Role = radioAdmin.isSelected() ? "Admin" : "Member";
 
+                String passwordRegex = "^(?=.*[0-9])(?=.*[a-zA-Z]).{8,}$";
+          if (!Password.matches(passwordRegex)) {
+                passwordErrorLabel.setText("<html>*Password must be at least <br> 8 characters long and include <br> both letters and numbers.</html>");
+                passwordTextField.setBorder(BorderFactory.createLineBorder(Color.RED)); 
+                return; 
+        } else {
+                passwordErrorLabel.setText(""); 
+                passwordTextField.setBorder(UIManager.getBorder("PasswordField.border")); 
+}
+
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+              if (!Email.matches(emailRegex)) {
+                    emailErrorLabel.setText("*Invalid email format!"); 
+                    textEmail.setBorder(BorderFactory.createLineBorder(Color.RED)); 
+                    return; 
+            } else {
+                    emailErrorLabel.setText(""); 
+                    textEmail.setBorder(UIManager.getBorder("TextField.border")); 
+}
                 java.util.Date utilDate = datePublishedText.getDate();
                 java.sql.Date  DateOfBitrthd = new java.sql.Date(utilDate.getTime());
 
@@ -168,7 +219,7 @@ public class NewMember extends JFrame {
     public boolean addNewMember(String UserName, String Email, String Password , String Role , String Gender ,java.sql.Date DateOfBitrthd  ) {
         String query = "INSERT INTO Users (UserName, Email, Password, Role, Gender, DateOfBitrthd) VALUES (?, ?, ?, ?, ?, ?)";
         try {
-          Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/baato/Downloads/LibraryDB.accdb");
+     Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
             PreparedStatement stmt = c.prepareStatement(query);
 
             stmt.setString(1, UserName);
