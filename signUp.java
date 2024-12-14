@@ -1,4 +1,3 @@
-
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -181,7 +180,10 @@ public class signUp extends JFrame {
 
             if (addNewMember(UserName, Email, Password, Gender, DateOfBitrthd)) {
                 JOptionPane.showMessageDialog(null, "Hello in Online Libary Management System!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                  int id = getIDOfUser(UserName , Password);
+                     User.setUserID(id);
                       new DashboardUser();
+                      dispose();
 
             } else {
                 throw new CustomExceptions.DatabaseException("Failed to add member. Try again.");
@@ -203,7 +205,7 @@ public class signUp extends JFrame {
     public boolean addNewMember(String UserName, String Email, String Password  , String Gender ,java.sql.Date DateOfBitrthd  ) {
         String query = "INSERT INTO Users (UserName, Email, Password, Role, Gender, DateOfBitrthd) VALUES (?, ?, ?, ?, ?, ?)";
         try {
-          Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/baato/Downloads/LibraryDB.accdb");
+          Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
             PreparedStatement stmt = c.prepareStatement(query);
 
             stmt.setString(1, UserName);
@@ -213,6 +215,7 @@ public class signUp extends JFrame {
             stmt.setString(5, Gender);
             stmt.setDate(6,DateOfBitrthd);
 
+            
             int rowsInserted = stmt.executeUpdate();
             return rowsInserted > 0;
 
@@ -221,8 +224,26 @@ public class signUp extends JFrame {
         }
         return false;
     }
+    
+       public int getIDOfUser(String username, String password) {
+    String query = "SELECT UserID FROM Users WHERE Username = ? AND Password = ?";
+    try{
+        Connection c = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Lamia/LibraryDB.accdb");
+         PreparedStatement stmt = c.prepareStatement(query);
+
+        stmt.setString(1, username);
+        stmt.setString(2, password);
+
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+            return rs.getInt("UserID"); 
+        } 
+    }catch(SQLException s){
+        s.printStackTrace();
+    }
+    return 0 ;}
+   
 
     
    
 }
-
